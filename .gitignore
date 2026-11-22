@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+.pytest_cache/
+data/raw/
+.idea/
+.DS_Store
+data/laps.csv.gz
