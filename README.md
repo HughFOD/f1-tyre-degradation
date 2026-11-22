@@ -2,7 +2,9 @@
 
 **Result:** forecasting how much time a stint will lose to tyre wear, using only earlier races, gets within **0.97 s per 20-lap stint** on 1,635 stints from 2024 to November 2026, against 1.47 s if tyre wear is ignored. A pre-race pit plan built on those forecasts picks the right number of stops in 82% of dry races (judged against the best plan in hindsight). But it costs a median 9.5 s against that best plan, mostly because it trusts the soft tyre far more than teams do. This README explains why.
 
-![Tyre wear in the 2024 Bahrain Grand Prix](docs/img/wear_curves_bahrain_2024.png)
+![Tyre wear at Monza and in Hungary, 2026](docs/img/wear_monza_vs_hungary_2026.png)
+
+*Same cars, same season. At Monza the tyres lose about half a second over 50 laps; in Hungary they lose 2-3 seconds within 30. Each dot is a clean-air lap with fuel burn and the driver's pace taken out; lines are the fitted wear curves (compounds with fewer than 150 clean laps aren't drawn). In Hungary the compounds don't wear in the expected order. That's one of the model's weak spots, covered under Findings.*
 
 Every lap of a race, the car gets lighter as fuel burns (faster) and its tyres wear (slower). Untangling the two tells you how fast each compound degrades at each track, and from that, when to pit and on which tyres. This project measures tyre wear lap by lap in every Grand Prix since 2019, tests whether it can be forecast before a race, and tests whether those forecasts lead to good pit strategies.
 

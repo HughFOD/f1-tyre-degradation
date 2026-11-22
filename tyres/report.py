@@ -85,3 +85,33 @@ def first_stops(e: pd.DataFrame, path):
     fig.tight_layout()
     fig.savefig(path, dpi=150)
     plt.close(fig)
+
+
+def wear_pair(c: pd.DataFrame, low: str, high: str, path):
+    """Two races side by side on the same scale: a low-wear and a high-wear track."""
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.3), sharey=True)
+    for ax, rid in zip(axes, (low, high)):
+        g = c[c["race_id"] == rid]
+        X, cols = model.design(g)
+        p = dict(zip(cols, np.linalg.lstsq(X, g["lap_time"].to_numpy(float), rcond=None)[0]))
+        adj = g["lap_time"] - [p[f"pace_{d}"] for d in g["driver"]] - p["fuel"] * g["lap"]
+        for k in model.COMPOUNDS:
+            m = g["compound"] == k
+            if m.sum() < 150:          # too few clean laps to draw a trustworthy curve
+                continue
+            ax.scatter(g.loc[m, "tyre_age"], adj[m], s=5, alpha=.25, color=COL[k])
+            age = np.arange(1, g.loc[m, "tyre_age"].max() + 1)
+            curve = p.get(f"offset_{k}", 0.0) + p[f"wear_{k}"] * age + p.get(f"curve_{k}", 0) * age ** 2 / 100
+            ax.plot(age, curve, color=COL[k], lw=2.5, label=k.title())
+        r = g.iloc[0]
+        ax.set_title(f"{r['year']} {r['race'].replace(' Grand Prix', ' GP')}", loc="left", fontsize=11)
+        ax.set_xlabel("Tyre age (laps)")
+        _style(ax)
+        ax.legend(frameon=False, fontsize=9)
+    axes[0].set_ylabel("Seconds slower than a new hard tyre")
+    axes[0].set_ylim(-1.5, 4)
+    fig.suptitle("Same cars, same year: tyre wear depends on the track (fuel and driver pace taken out)",
+                 x=0.01, ha="left", fontsize=11.5)
+    fig.tight_layout()
+    fig.savefig(path, dpi=150)
+    plt.close(fig)

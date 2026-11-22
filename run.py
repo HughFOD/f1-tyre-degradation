@@ -71,8 +71,11 @@ def main():
             report.first_stops(e, img / "first_stop.png")
 
     print("4/4 Charts ...")
-    report.wear_curves(c, d.loc[(d["year"] == 2024) & (d["race"] == "Bahrain Grand Prix"), "race_id"].iloc[0],
-                       img / "wear_curves_bahrain_2024.png")
+    # Headline chart: the lowest- and highest-wear 2026 dry races with reliable estimates
+    # (at least two compounds with 150+ clean laps), picked from wear_by_race.csv.
+    ids = d[d["year"] == 2026].drop_duplicates("race").set_index("race")["race_id"]
+    report.wear_pair(c, ids["Italian Grand Prix"], ids["Hungarian Grand Prix"],
+                     img / "wear_monza_vs_hungary_2026.png")
     (out / "summary.json").write_text(json.dumps(summary, indent=2, default=float))
     print(f"\nDone in {time.time() - t0:.0f}s. See output/summary.json")
     return summary
