@@ -85,7 +85,23 @@ def predicted_slope(p: dict, compound: str, age0, age1) -> np.ndarray:
     return p["fuel"] + wear
 
 
-def walk_forward(c: pd.DataFrame, years, ridge: float, k: float, first_train: int = 2019) -> pd.DataFrame:
+def weekend_signal(runs: pd.DataFrame, fc: dict) -> dict:
+    """How this weekend's practice/sprint long runs compared with the track-history forecast:
+    per compound and overall, the summed miss (actual minus forecast trend, s/lap) and the count."""
+    if runs is None or runs.empty:
+        return {}
+    miss = runs["slope"].to_numpy() - np.concatenate(
+        [predicted_slope(fc, comp, g["age0"], g["age1"]) for comp, g in runs.groupby("compound", sort=False)])
+    comps = np.concatenate([g["compound"].to_numpy() for _, g in runs.groupby("compound", sort=False)])
+    out = {"all": (float(miss.sum()), len(miss))}
+    for comp in model.COMPOUNDS:
+        m = comps == comp
+        out[comp] = (float(miss[m].sum()), int(m.sum()))
+    return out
+
+
+def walk_forward(c: pd.DataFrame, years, ridge: float, k: float, first_train: int = 2018,
+                 runs: pd.DataFrame | None = None) -> pd.DataFrame:
     """For every race in `years`: fit the parameters of all EARLIER races, forecast this race's
     wear from them, and compare with what its stints actually did. Also records two simpler
     forecasts (fuel only; typical race) and the hindsight fit of the race itself (not a forecast:
@@ -117,17 +133,29 @@ def walk_forward(c: pd.DataFrame, years, ridge: float, k: float, first_train: in
             row["track_history"] = predicted_slope(fc, comp, g["age0"], g["age1"])
             row["hindsight"] = predicted_slope(hind, comp, g["age0"], g["age1"]) if hind else np.nan
             row["track_seen_before"] = (past["track"] == trk).any()
+            if runs is not None:
+                sig = weekend_signal(runs[runs["race_id"] == rid], fc)
+                row["wk_sum_comp"], row["wk_n_comp"] = sig.get(comp, (0.0, 0))
+                row["wk_sum_all"], row["wk_n_all"] = sig.get("all", (0.0, 0))
             out.append(row)
     return pd.concat(out, ignore_index=True)
 
 
-FORECASTS = ["fuel_only", "typical", "track_history", "hindsight"]
+FORECASTS = ["fuel_only", "typical", "track_history", "weekend", "hindsight"]
+
+
+def add_weekend(w: pd.DataFrame, beta: float, k: float) -> pd.DataFrame:
+    """Weekend forecast: track history shifted by this weekend's practice/sprint long runs
+    (beta x their average miss vs the forecast, shrunk toward zero by k runs)."""
+    w = w.copy()
+    w["weekend"] = w["track_history"] + beta * w["wk_sum_all"] / (w["wk_n_all"] + k)
+    return w
 
 
 def score(w: pd.DataFrame, stint_laps: int = 20) -> pd.DataFrame:
     """Error in the time a stint loses, scaled to a 20-lap stint so it reads in seconds."""
     rows = []
-    for f in FORECASTS:
+    for f in [x for x in FORECASTS if x in w]:
         e = (w[f] - w["slope"]) * (stint_laps - 1)
         rows.append({"forecast": f, "stints": int(e.notna().sum()), "MAE (s per 20 laps)": e.abs().mean(),
                      "bias (s per 20 laps)": e.mean()})
@@ -169,3 +197,23 @@ def walk_forward_live(c: pd.DataFrame, years, ridge: float, k: float, share: flo
             row["used_before_cut"] = (early["compound"] == comp).any()
             out.append(row)
     return pd.concat(out, ignore_index=True)
+
+
+def weekend_adjust(fc: dict, runs: pd.DataFrame | None, beta: float, k: float, per_compound: bool = False,
+                   k_comp: float | None = None) -> dict:
+    """Shift the track-history forecast by how this weekend's practice/sprint long runs compared
+    with it: every compound's wear moves by beta x the shrunk average miss (s/lap). With
+    per_compound, a compound that was run in practice uses its own miss (shrunk by k_comp)."""
+    sig = weekend_signal(runs, fc) if runs is not None else {}
+    if not sig:
+        return dict(fc)
+    s_all, n_all = sig["all"]
+    out = dict(fc)
+    for comp in model.COMPOUNDS:
+        d = s_all / (n_all + k)
+        if per_compound:
+            s_c, n_c = sig[comp]
+            if n_c:
+                d = s_c / (n_c + (k_comp or k))
+        out[f"wear_{comp}"] = fc[f"wear_{comp}"] + beta * d
+    return out

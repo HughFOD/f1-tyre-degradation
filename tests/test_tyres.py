@@ -94,3 +94,19 @@ def test_tyre_cost_never_falls_with_age():
     costs = [strategy.tyre_cost(p, "SOFT", L) for L in range(1, 60)]
     per_lap = np.diff([0] + costs)
     assert (np.diff(per_lap) >= -1e-9).all()
+
+
+def test_long_runs_keep_only_race_like_running():
+    o = fake_laps(races=1)
+    o["session"] = "FP2"
+    o.loc[o["lap"] == 10, "lap_time"] += 5          # a push lap / traffic: >3% off, dropped
+    o.loc[o["lap"] == 20, "status"] = "2"            # yellow flag: dropped
+    runs = data.long_runs(o)
+    assert len(runs) and (runs["laps"] >= 5).all()
+    assert set(runs["compound"]) <= set(data.DRY)
+
+
+def test_weekend_shift_is_zero_without_practice():
+    w = pd.DataFrame({"track_history": [0.05, 0.10], "wk_sum_all": [0.0, 0.0], "wk_n_all": [0, 0]})
+    out = forecast.add_weekend(w, beta=0.15, k=10)
+    assert np.allclose(out["weekend"], w["track_history"])

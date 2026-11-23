@@ -11,21 +11,24 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parent.parent
 RAW = ROOT / "data" / "raw"
 LAPS = ROOT / "data" / "laps.csv.gz"
-SEASONS = range(2019, 2027)
-FILES = ("session_laptimes.json", "session_info.json", "rcm.json")
+OTHER = ROOT / "data" / "practice_sprint_laps.csv.gz"
+SEASONS = range(2018, 2027)
+FILES = ("session_laptimes.json", "session_info.json")
+SESSIONS = {"Race": "R", "Sprint": "S", "Practice 1": "FP1", "Practice 2": "FP2", "Practice 3": "FP3"}
 DRY = ("SOFT", "MEDIUM", "HARD")
 
 
 def download(seasons=SEASONS, raw: Path = RAW) -> None:
-    """Sparse-clone only the race-session files of each season (about 8 MB a season)."""
+    """Sparse-clone only the lap and info files of each race weekend's practice, sprint and race
+    sessions (about 16 MB a season)."""
     raw.mkdir(parents=True, exist_ok=True)
     for y in seasons:
         dest = raw / str(y)
         if not dest.exists():
             subprocess.run(["git", "clone", "-q", "--depth", "1", "--filter=blob:none", "--sparse",
                             f"https://github.com/TracingInsights/{y}", str(dest)], check=True)
-            subprocess.run(["git", "sparse-checkout", "set", "--no-cone", *[f"/*/Race/{f}" for f in FILES]],
-                           cwd=dest, check=True)
+            subprocess.run(["git", "sparse-checkout", "set", "--no-cone",
+                            *[f"/*/{s}/{f}" for s in SESSIONS for f in FILES]], cwd=dest, check=True)
         else:
             subprocess.run(["git", "pull", "-q", "--depth", "1"], cwd=dest, check=False)
 
@@ -34,7 +37,7 @@ def _flag(v) -> bool:
     return v not in (None, "None", "", False, "False") and not (isinstance(v, float) and np.isnan(v))
 
 
-def _race(folder: Path, year: int) -> pd.DataFrame:
+def _race(folder: Path, year: int, session: str = "R") -> pd.DataFrame:
     s = json.loads((folder / "session_laptimes.json").read_text())
     info = json.loads((folder / "session_info.json").read_text())
     d = pd.DataFrame({k: s[k] for k in ("drv", "team", "lap", "time", "compound", "stint", "life", "fresh",
@@ -50,9 +53,10 @@ def _race(folder: Path, year: int) -> pd.DataFrame:
     d = d.rename(columns={"drv": "driver", "time": "lap_time", "life": "tyre_age", "wTT": "track_temp",
                           "sesT": "session_time"})
     d["year"] = year
+    d["session"] = session
     d["race"] = folder.parent.name
     d["date"] = pd.to_datetime(info.get("t0_date", f"{year}-01-01")).normalize()
-    d["total_laps"] = info.get("total_laps", d["lap"].max())
+    d["total_laps"] = info.get("total_laps") or d["lap"].max()
     return d
 
 
@@ -75,8 +79,47 @@ def build(raw: Path = RAW, out: Path = LAPS) -> pd.DataFrame:
     return d
 
 
+def build_other(race_laps: pd.DataFrame, raw: Path = RAW, out: Path = OTHER) -> pd.DataFrame:
+    """Practice and sprint laps, tagged with the race weekend they belong to (same race_id as
+    that weekend's Grand Prix). Weekends whose race isn't in race_laps are dropped."""
+    ids = race_laps[["year", "race", "race_id", "round"]].drop_duplicates()
+    parts = []
+    for y in SEASONS:
+        for folder_name, tag in SESSIONS.items():
+            if tag == "R":
+                continue
+            for f in sorted((raw / str(y)).glob(f"*/{folder_name}/session_laptimes.json")):
+                try:
+                    parts.append(_race(f.parent, y, tag))
+                except Exception as e:
+                    print(f"  skipped {y} {f.parent.parent.name} {tag}: {type(e).__name__}")
+    d = pd.concat(parts, ignore_index=True).merge(ids, on=["year", "race"])
+    d = d.sort_values(["date", "session", "driver", "lap"]).reset_index(drop=True)
+    d.to_csv(out, index=False)
+    return d
+
+
 def load(path: Path = LAPS) -> pd.DataFrame:
     return pd.read_csv(path, parse_dates=["date"], dtype={"status": str})
+
+
+def long_runs(o: pd.DataFrame, min_laps: int = 5, within: float = 0.03) -> pd.DataFrame:
+    """Practice/sprint stints that look like race running: green-flag, accurate, dry laps that
+    aren't in- or out-laps, within 3% of the stint's median lap (drops push laps and cool-down
+    laps), at least `min_laps` of them. One row per run with its lap-time trend (s/lap)."""
+    m = ((o["status"] == "1") & o["compound"].isin(DRY) & ~o["pit_in"].astype(bool) & ~o["pit_out"].astype(bool)
+         & o["accurate"].astype(bool) & ~o["deleted"].astype(bool) & o["lap_time"].notna() & o["tyre_age"].notna())
+    c = o[m].copy()
+    med = c.groupby(["race_id", "session", "driver", "stint"])["lap_time"].transform("median")
+    c = c[(c["lap_time"] - med).abs() <= within * med]
+    rows = []
+    for (rid, ses, drv, st), g in c.groupby(["race_id", "session", "driver", "stint"], sort=False):
+        if len(g) < min_laps or g["compound"].nunique() != 1:
+            continue
+        rows.append(dict(race_id=rid, session=ses, driver=drv, team=g["team"].iloc[0], stint=st,
+                         compound=g["compound"].iloc[0], age0=g["tyre_age"].min(), age1=g["tyre_age"].max(),
+                         laps=len(g), slope=np.polyfit(g["lap"].to_numpy(float), g["lap_time"].to_numpy(float), 1)[0]))
+    return pd.DataFrame(rows)
 
 
 def add_gap(d: pd.DataFrame) -> pd.DataFrame:

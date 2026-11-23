@@ -1,4 +1,4 @@
-"""Step 2: download the lap data (first run ~60 MB from GitHub), fit tyre wear for every race,
+"""Step 2: download the lap data (first run ~140 MB from GitHub), fit tyre wear for every race,
 test the forecasts and the pit strategies, and write results to output/ and charts to docs/img/.
 About 3 minutes.
 

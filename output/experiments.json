@@ -2,15 +2,15 @@
   "temperature (2019-2023)": [
     {
       "compound": "SOFT",
-      "races": 18,
-      "s per 20 laps per degC": -0.015,
-      "correlation": -0.155
+      "races": 25,
+      "s per 20 laps per degC": -0.027,
+      "correlation": -0.27
     },
     {
       "compound": "MEDIUM",
-      "races": 75,
-      "s per 20 laps per degC": -0.005,
-      "correlation": -0.071
+      "races": 80,
+      "s per 20 laps per degC": -0.002,
+      "correlation": -0.024
     },
     {
       "compound": "HARD",
@@ -21,34 +21,34 @@
   ],
   "team or driver wear": {
     "best setting (2023)": "team, k=100, last 20 races",
-    "2023 without": 0.7780825748514535,
-    "2023 with": 0.7515120369833951,
-    "2024-26 without": 0.9724434272828578,
-    "2024-26 with": 0.96919706724739
+    "2023 without": 0.7767956402808561,
+    "2023 with": 0.7484557068520219,
+    "2024-26 without": 0.9747054114088219,
+    "2024-26 with": 0.9709510618007282
   },
   "robust planning (2023)": [
     {
       "variant": "wear spread + safety cars",
       "races": 20,
-      "plain plan, median s lost": 10.03,
-      "robust plan, median s lost": 9.86,
-      "plain starts on soft": 0.5,
+      "plain plan, median s lost": 8.09,
+      "robust plan, median s lost": 4.72,
+      "plain starts on soft": 0.6,
       "robust starts on soft": 0.6
     },
     {
       "variant": "safety cars only",
       "races": 20,
-      "plain plan, median s lost": 10.03,
-      "robust plan, median s lost": 10.03,
-      "plain starts on soft": 0.5,
-      "robust starts on soft": 0.5
+      "plain plan, median s lost": 8.09,
+      "robust plan, median s lost": 8.09,
+      "plain starts on soft": 0.6,
+      "robust starts on soft": 0.6
     },
     {
       "variant": "wear spread only",
       "races": 20,
-      "plain plan, median s lost": 10.03,
-      "robust plan, median s lost": 9.86,
-      "plain starts on soft": 0.5,
+      "plain plan, median s lost": 8.09,
+      "robust plan, median s lost": 4.72,
+      "plain starts on soft": 0.6,
       "robust starts on soft": 0.6
     }
   ],
@@ -56,34 +56,88 @@
     {
       "stint limit": "no caps",
       "races": 20,
-      "mean s lost vs best plan (lap-time model)": 3.78,
-      "stops match winner": 0.35,
-      "first stop vs winner, laps later": 9.65,
-      "starts on soft": 0.5
+      "mean s lost vs best plan (lap-time model)": 3.84,
+      "stops match winner": 0.4,
+      "first stop vs winner, laps later": 9.1,
+      "starts on soft": 0.6
     },
     {
       "stint limit": "longest stint run there",
       "races": 20,
-      "mean s lost vs best plan (lap-time model)": 4.42,
-      "stops match winner": 0.35,
-      "first stop vs winner, laps later": 8.85,
-      "starts on soft": 0.45
+      "mean s lost vs best plan (lap-time model)": 4.02,
+      "stops match winner": 0.4,
+      "first stop vs winner, laps later": 7.8,
+      "starts on soft": 0.6
     },
     {
       "stint limit": "90th percentile",
       "races": 20,
-      "mean s lost vs best plan (lap-time model)": 4.96,
-      "stops match winner": 0.45,
-      "first stop vs winner, laps later": 6.9,
-      "starts on soft": 0.45
+      "mean s lost vs best plan (lap-time model)": 4.41,
+      "stops match winner": 0.5,
+      "first stop vs winner, laps later": 6.65,
+      "starts on soft": 0.6
     },
     {
       "stint limit": "75th percentile",
       "races": 20,
-      "mean s lost vs best plan (lap-time model)": 7.53,
+      "mean s lost vs best plan (lap-time model)": 8.41,
       "stops match winner": 0.6,
-      "first stop vs winner, laps later": 3.55,
-      "starts on soft": 0.4
+      "first stop vs winner, laps later": 3.8,
+      "starts on soft": 0.55
+    }
+  ],
+  "practice in the pit plans (2023)": [
+    {
+      "plan uses": "track history only",
+      "races": 20,
+      "median s lost vs best plan": 2.62,
+      "mean s lost": 3.84,
+      "stops match winner": 0.4,
+      "first stop vs winner, laps later": 9.1,
+      "starts on soft": 0.6
+    },
+    {
+      "plan uses": "+ practice, all compounds",
+      "races": 20,
+      "median s lost vs best plan": 2.63,
+      "mean s lost": 4.15,
+      "stops match winner": 0.45,
+      "first stop vs winner, laps later": 8.55,
+      "starts on soft": 0.6
+    },
+    {
+      "plan uses": "+ practice, each compound's own",
+      "races": 20,
+      "median s lost vs best plan": 4.58,
+      "mean s lost": 15.03,
+      "stops match winner": 0.4,
+      "first stop vs winner, laps later": 3.05,
+      "starts on soft": 0.65
+    },
+    {
+      "plan uses": "+ practice, each compound's own (stronger)",
+      "races": 20,
+      "median s lost vs best plan": 8.23,
+      "mean s lost": 17.85,
+      "stops match winner": 0.45,
+      "first stop vs winner, laps later": 0.45,
+      "starts on soft": 0.65
+    }
+  ],
+  "new tracks (2024-26)": [
+    {
+      "track": "no history",
+      "stints": 54,
+      "typical": 1.306,
+      "track_history": 1.306,
+      "weekend": 1.388
+    },
+    {
+      "track": "raced before",
+      "stints": 1581,
+      "typical": 0.993,
+      "track_history": 0.963,
+      "weekend": 0.936
     }
   ],
   "noise floor (2024-26)": {

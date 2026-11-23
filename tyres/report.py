@@ -10,7 +10,7 @@ from . import model
 
 COL = {"SOFT": "#d7261e", "MEDIUM": "#e8b100", "HARD": "#6b6b6b"}
 NAMES = {"fuel_only": "Ignore tyre wear", "typical": "Typical race", "track_history": "This track's history",
-         "hindsight": "Hindsight (fit on the race itself)"}
+         "weekend": "+ this weekend's practice", "hindsight": "Hindsight (fit on the race itself)"}
 
 
 def _style(ax):
@@ -51,13 +51,16 @@ def wear_curves(c: pd.DataFrame, race_id: str, path):
 
 
 def forecast_errors(w: pd.DataFrame, path, floor: float | None = None):
-    e = {f: ((w[f] - w["slope"]).abs() * 19).groupby(w["year"]).mean() for f in NAMES}
+    names = {f: n for f, n in NAMES.items() if f in w}
+    e = {f: ((w[f] - w["slope"]).abs() * 19).groupby(w["year"]).mean() for f in names}
     t = pd.DataFrame(e)
-    fig, ax = plt.subplots(figsize=(8, 4))
+    fig, ax = plt.subplots(figsize=(8.5, 4.2))
     x = np.arange(len(t))
-    cols = ["#bbbbbb", "#9ec1f0", "#2a6fdb", "#3b3b3b"]
-    for i, f in enumerate(NAMES):
-        ax.bar(x + (i - 1.5) * .2, t[f], .19, label=NAMES[f], color=cols[i])
+    palette = {"fuel_only": "#bbbbbb", "typical": "#9ec1f0", "track_history": "#2a6fdb", "weekend": "#0b3d91",
+               "hindsight": "#3b3b3b"}
+    bw = 0.8 / len(names)
+    for i, f in enumerate(names):
+        ax.bar(x + (i - (len(names) - 1) / 2) * bw, t[f], bw * 0.95, label=names[f], color=palette[f])
     ax.set_xticks(x, t.index.astype(str))
     ax.set_ylim(0, t.to_numpy().max() * 1.3)
     if floor is not None:

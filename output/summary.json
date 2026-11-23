@@ -3,20 +3,26 @@
     {
       "forecast": "fuel_only",
       "stints": 519,
-      "MAE (s per 20 laps)": 1.383,
-      "bias (s per 20 laps)": -1.271
+      "MAE (s per 20 laps)": 1.363,
+      "bias (s per 20 laps)": -1.246
     },
     {
       "forecast": "typical",
       "stints": 519,
-      "MAE (s per 20 laps)": 0.933,
-      "bias (s per 20 laps)": -0.544
+      "MAE (s per 20 laps)": 0.923,
+      "bias (s per 20 laps)": -0.523
     },
     {
       "forecast": "track_history",
       "stints": 519,
-      "MAE (s per 20 laps)": 0.778,
-      "bias (s per 20 laps)": -0.352
+      "MAE (s per 20 laps)": 0.777,
+      "bias (s per 20 laps)": -0.356
+    },
+    {
+      "forecast": "weekend",
+      "stints": 519,
+      "MAE (s per 20 laps)": 0.757,
+      "bias (s per 20 laps)": -0.273
     },
     {
       "forecast": "hindsight",
@@ -29,62 +35,77 @@
     {
       "forecast": "fuel_only",
       "stints": 1635,
-      "MAE (s per 20 laps)": 1.471,
-      "bias (s per 20 laps)": -1.233
+      "MAE (s per 20 laps)": 1.461,
+      "bias (s per 20 laps)": -1.22
     },
     {
       "forecast": "typical",
       "stints": 1635,
-      "MAE (s per 20 laps)": 1.001,
-      "bias (s per 20 laps)": -0.347
+      "MAE (s per 20 laps)": 1.003,
+      "bias (s per 20 laps)": -0.352
     },
     {
       "forecast": "track_history",
       "stints": 1635,
-      "MAE (s per 20 laps)": 0.972,
-      "bias (s per 20 laps)": -0.193
+      "MAE (s per 20 laps)": 0.975,
+      "bias (s per 20 laps)": -0.203
+    },
+    {
+      "forecast": "weekend",
+      "stints": 1635,
+      "MAE (s per 20 laps)": 0.951,
+      "bias (s per 20 laps)": -0.078
     },
     {
       "forecast": "hindsight",
       "stints": 1608,
       "MAE (s per 20 laps)": 0.676,
-      "bias (s per 20 laps)": -0.107
+      "bias (s per 20 laps)": -0.108
     }
   ],
+  "noise_floor_holdout": {
+    "matched pairs": 2063,
+    "teammate pairs": 158,
+    "unpredictable part, s per 20 laps (all pairs)": 0.5983580303994142,
+    "unpredictable part, s per 20 laps (teammates)": 0.6176812756068045
+  },
   "stint_holdout_by_compound": {
     "HARD": {
-      "fuel_only": 1.289,
-      "typical": 0.836,
+      "fuel_only": 1.278,
+      "typical": 0.833,
       "track_history": 0.811,
-      "hindsight": 0.59
+      "weekend": 0.799,
+      "hindsight": 0.591
     },
     "MEDIUM": {
-      "fuel_only": 1.526,
-      "typical": 1.027,
-      "track_history": 0.996,
-      "hindsight": 0.703
+      "fuel_only": 1.517,
+      "typical": 1.035,
+      "track_history": 1.0,
+      "weekend": 0.961,
+      "hindsight": 0.702
     },
     "SOFT": {
-      "fuel_only": 1.943,
-      "typical": 1.484,
-      "track_history": 1.454,
-      "hindsight": 0.927
+      "fuel_only": 1.934,
+      "typical": 1.493,
+      "track_history": 1.46,
+      "weekend": 1.434,
+      "hindsight": 0.928
     }
   },
   "live_update_validation": {
-    "typical": 0.933,
-    "track_history": 0.787,
-    "live": 0.936
+    "typical": 0.924,
+    "track_history": 0.784,
+    "live": 0.937
   },
   "strategy_validation": {
     "dry races": 20,
-    "plan cost vs hindsight best, median s": 2.0,
+    "plan cost vs hindsight best, median s": 2.6,
     "plan cost, mean s": 3.8,
-    "stops match hindsight": 0.8,
-    "stops match winner": 0.35,
+    "stops match hindsight": 0.85,
+    "stops match winner": 0.4,
     "hindsight stops match winner": 0.45,
-    "first stop, model minus winner, mean laps": 9.7,
-    "plan starts on soft": 0.5,
+    "first stop, model minus winner, mean laps": 9.1,
+    "plan starts on soft": 0.6,
     "winner started on soft": 0.15,
     "races with SC/VSC": 13,
     "winner 2+ stops, with SC": 0.69,
@@ -92,13 +113,13 @@
   },
   "strategy_holdout": {
     "dry races": 61,
-    "plan cost vs hindsight best, median s": 9.5,
-    "plan cost, mean s": 11.3,
-    "stops match hindsight": 0.82,
+    "plan cost vs hindsight best, median s": 7.8,
+    "plan cost, mean s": 10.7,
+    "stops match hindsight": 0.84,
     "stops match winner": 0.64,
     "hindsight stops match winner": 0.66,
-    "first stop, model minus winner, mean laps": 5.9,
-    "plan starts on soft": 0.72,
+    "first stop, model minus winner, mean laps": 6.7,
+    "plan starts on soft": 0.75,
     "winner started on soft": 0.15,
     "races with SC/VSC": 45,
     "winner 2+ stops, with SC": 0.49,

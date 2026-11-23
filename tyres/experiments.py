@@ -110,3 +110,28 @@ def noise_floor(w: pd.DataFrame, max_age_gap: int = 3) -> dict:
     return {"matched pairs": int(len(diffs)), "teammate pairs": int(mates.sum()),
             "unpredictable part, s per 20 laps (all pairs)": float(diffs.mean() / np.sqrt(2)),
             "unpredictable part, s per 20 laps (teammates)": float(diffs[mates].mean() / np.sqrt(2))}
+
+
+def practice_in_strategy(d: pd.DataFrame, c: pd.DataFrame, runs: pd.DataFrame, ridge: float, k: float) -> pd.DataFrame:
+    """Do pit plans get better if wear is first shifted by this weekend's practice long runs?"""
+    rows = []
+    for name, wk in (("track history only", None), ("+ practice, all compounds", {"beta": 0.15, "k": 10}),
+                     ("+ practice, each compound's own", {"beta": 0.5, "k": 10, "per_compound": True, "k_comp": 10}),
+                     ("+ practice, each compound's own (stronger)", {"beta": 1.0, "k": 10, "per_compound": True, "k_comp": 10})):
+        e = strategy.evaluate(d, c, VALIDATION, ridge, k, runs=runs if wk else None, weekend=wk)
+        rows.append({"plan uses": name, "races": len(e),
+                     "median s lost vs best plan": float(e["plan_cost"].median()),
+                     "mean s lost": float(e["plan_cost"].mean()),
+                     "stops match winner": float((e["plan_stops"] == e["winner_stops"]).mean()),
+                     "first stop vs winner, laps later": float((e["plan_first_stop"] - e["winner_first_stop"]).mean()),
+                     "starts on soft": float(e["plan"].str.startswith("S").mean())})
+    return pd.DataFrame(rows)
+
+
+def new_tracks(w: pd.DataFrame) -> pd.DataFrame:
+    """Forecast error on tracks raced before vs tracks with no history (2024-26 stints)."""
+    rows = []
+    for seen, g in w.groupby("track_seen_before"):
+        rows.append({"track": "raced before" if seen else "no history", "stints": len(g),
+                     **{f: float(((g[f] - g["slope"]).abs() * 19).mean()) for f in ("typical", "track_history", "weekend")}})
+    return pd.DataFrame(rows)

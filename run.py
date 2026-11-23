@@ -1,6 +1,6 @@
 """Runs everything: download, tidy, fit, test, charts. Results go to output/ and docs/img/.
 
-    python run.py            (first run downloads ~60 MB of lap data from GitHub)
+    python run.py            (first run downloads ~140 MB of lap data from GitHub)
 """
 import json
 import time
@@ -14,6 +14,7 @@ from tyres import data, forecast, model, report, strategy
 MIN_GAP = 2.0      # seconds behind the car ahead for a lap to count as clean air
 RIDGE = 300        # how strongly a race's estimates are pulled toward typical values
 TRACK_K = 0.3      # how much a track's own history is trusted vs the typical race
+WEEKEND = {"beta": 0.15, "k": 10}   # how much this weekend's practice/sprint long runs shift it
 VALIDATION, HOLDOUT = [2023], [2024, 2025, 2026]
 
 
@@ -28,7 +29,10 @@ def main():
     data.download()
     d = data.add_gap(data.build())
     c = data.clean_laps(d, min_gap=MIN_GAP)
-    print(f"    {d['race_id'].nunique()} races, {len(d):,} laps, {len(c):,} clean-air laps")
+    runs = data.long_runs(data.build_other(d))
+    runs.to_csv(out / "long_runs.csv", index=False)
+    print(f"    {d['race_id'].nunique()} races, {len(d):,} laps, {len(c):,} clean-air laps; "
+          f"{len(runs):,} practice/sprint long runs")
 
     print("2/4 Wear: every race fitted, then forecast from earlier races ...")
     glob = forecast.typical(model.fit_all(c, ridge=1.0))
@@ -36,7 +40,7 @@ def main():
     params.to_csv(out / "wear_by_race.csv", index=False)
     summary = {}
     for name, yrs in (("validation", VALIDATION), ("holdout", HOLDOUT)):
-        w = forecast.walk_forward(c, yrs, RIDGE, TRACK_K)
+        w = forecast.add_weekend(forecast.walk_forward(c, yrs, RIDGE, TRACK_K, runs=runs), **WEEKEND)
         w.to_csv(out / f"stint_forecasts_{name}.csv", index=False)
         summary[f"stint_{name}"] = forecast.score(w).round(3).to_dict("records")
         if name == "holdout":

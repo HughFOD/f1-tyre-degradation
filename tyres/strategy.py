@@ -116,7 +116,8 @@ def track_caps(acts: pd.DataFrame, trk: str, year: int, total: int, track_of, qu
 
 
 def evaluate(d: pd.DataFrame, c: pd.DataFrame, years, ridge: float, k: float,
-             max_stint: dict | None = None, caps_by_track: dict | None = None) -> pd.DataFrame:
+             max_stint: dict | None = None, caps_by_track: dict | None = None,
+             runs: pd.DataFrame | None = None, weekend: dict | None = None) -> pd.DataFrame:
     """For every dry race in `years`, using only earlier races: forecast wear, take the fastest
     plan under that forecast, and score it with the wear the race actually showed (the hindsight
     fit). Scores the top-10 finishers' actual plans the same way. Costs are seconds slower than
@@ -143,6 +144,8 @@ def evaluate(d: pd.DataFrame, c: pd.DataFrame, years, ridge: float, k: float,
         past, glob = cache[key]
         trk = forecast.track(race, year)
         fc = forecast.track_forecast(past, trk, glob, k)
+        if runs is not None and weekend is not None:      # this weekend's practice / sprint long runs
+            fc = forecast.weekend_adjust(fc, runs[runs["race_id"] == rid], **weekend)
         hind = model.fit_race(this, prior=glob, ridge=ridge)
         pp = pl[(pl["track"] == trk) & (pl["year"] < year)]["pit_loss"]
         pit_f = pp.median() if len(pp) else pl[pl["year"] < year]["pit_loss"].median()
