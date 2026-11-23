@@ -159,3 +159,39 @@ def session_weights(val: pd.DataFrame, hold: pd.DataFrame, beta: float = 0.15, k
     return {"best weights (2023)": best[1], "2023 equal": mae(val, pred(val, beta, k, equal)), "2023 best": best[0],
             "2024-26 equal": mae(hold, pred(hold, beta, k, equal)),
             "2024-26 best": mae(hold, pred(hold, best[2], best[3], best[1]))}
+
+
+def pirelli_compounds(c: pd.DataFrame, runs: pd.DataFrame, params: pd.DataFrame, ridge: float, k: float) -> dict:
+    """Does knowing which rubber Pirelli brought (C0-C6) help? (1) Forecast each compound from the
+    same rubber's wear at that track, whatever it was called then; scored overall and where
+    Pirelli changed the compounds from the previous visit. (2) Typical wear by C-number."""
+    alloc = forecast.load_allocations()
+    w = forecast.walk_forward(c, list(range(2023, 2027)), ridge, k, runs=runs, alloc=alloc)
+    al = alloc.copy()
+    al["track"] = [forecast.track(r, y) for r, y in zip(al["race"], al["year"])]
+    al = al.sort_values("year")
+    key = al[["hard", "medium", "soft"]].astype(str).agg("/".join, axis=1)
+    prev = al.groupby(["track", "gen"])[["hard", "medium", "soft"]].shift(1)
+    al["changed"] = prev.notna().all(axis=1) & (key != prev.astype("Int64").astype(str).agg("/".join, axis=1))
+    w = w.merge(al[["year", "race", "changed"]], on=["year", "race"], how="left")
+
+    def mae(g, col):
+        return float(((g[col] - g["slope"]).abs() * 19).mean())
+
+    out = {}
+    for name, yrs in (("2023", [2023]), ("2024-26", [2024, 2025, 2026])):
+        g = w[w["year"].isin(yrs)]
+        ch = g[g["changed"] == True]  # noqa: E712
+        out[name] = {"label-based": mae(g, "track_history"), "rubber-matched": mae(g, "rubber"),
+                     "races where Pirelli changed compounds": int(ch["race_id"].nunique()),
+                     "...label-based there": mae(ch, "track_history"), "...rubber-matched there": mae(ch, "rubber")}
+    p = params.merge(alloc, on=["year", "race"])
+    rows = []
+    for _, r in p.iterrows():
+        for lab in model.COMPOUNDS:
+            if r[f"laps_{lab}"] >= 100:
+                rows.append((r["gen"], f"C{r[lab.lower()]}", float(model.loss_after(r, lab, 20))))
+    t = pd.DataFrame(rows, columns=["generation", "compound", "loss20"])
+    out["median s lost after 20 laps, by rubber"] = {
+        f"{g} {cc}": round(float(v), 2) for (g, cc), v in t.groupby(["generation", "compound"])["loss20"].median().items()}
+    return out

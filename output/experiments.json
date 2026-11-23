@@ -23,8 +23,8 @@
     "best setting (2023)": "team, k=100, last 20 races",
     "2023 without": 0.7767956402808561,
     "2023 with": 0.7484557068520219,
-    "2024-26 without": 0.9747054114088219,
-    "2024-26 with": 0.9709510618007282
+    "2024-26 without": 0.9752301962962941,
+    "2024-26 with": 0.9709444139799644
   },
   "robust planning (2023)": [
     {
@@ -127,17 +127,17 @@
   "new tracks (2024-26)": [
     {
       "track": "no history",
-      "stints": 54,
-      "typical": 1.306,
-      "track_history": 1.306,
-      "weekend": 1.388
+      "stints": 67,
+      "typical": 1.403,
+      "track_history": 1.403,
+      "weekend": 1.432
     },
     {
       "track": "raced before",
-      "stints": 1581,
-      "typical": 0.993,
-      "track_history": 0.963,
-      "weekend": 0.936
+      "stints": 1568,
+      "typical": 0.986,
+      "track_history": 0.957,
+      "weekend": 0.93
     }
   ],
   "practice session weights": {
@@ -149,8 +149,42 @@
     },
     "2023 equal": 0.756701934221098,
     "2023 best": 0.747207421798952,
-    "2024-26 equal": 0.9513715883704428,
-    "2024-26 best": 0.9503016745056112
+    "2024-26 equal": 0.9501182762016895,
+    "2024-26 best": 0.9490437666734846
+  },
+  "Pirelli compound choices": {
+    "2023": {
+      "label-based": 0.7767956402808561,
+      "rubber-matched": 0.7826659000098962,
+      "races where Pirelli changed compounds": 9,
+      "...label-based there": 0.8038096021824703,
+      "...rubber-matched there": 0.8179980753082128
+    },
+    "2024-26": {
+      "label-based": 0.9752301962962941,
+      "rubber-matched": 0.9750172704856406,
+      "races where Pirelli changed compounds": 14,
+      "...label-based there": 1.0837333960965154,
+      "...rubber-matched there": 1.1117027318517376
+    },
+    "median s lost after 20 laps, by rubber": {
+      "13in C1": 0.2,
+      "13in C2": 0.84,
+      "13in C3": 0.83,
+      "13in C4": 0.86,
+      "13in C5": -0.03,
+      "18in C0": 0.77,
+      "18in C1": 1.47,
+      "18in C2": 1.06,
+      "18in C3": 0.99,
+      "18in C4": 1.11,
+      "18in C5": 0.78,
+      "2026 C1": 1.31,
+      "2026 C2": 0.94,
+      "2026 C3": 1.13,
+      "2026 C4": 0.93,
+      "2026 C5": 0.34
+    }
   },
   "noise floor (2024-26)": {
     "matched pairs": 2063,

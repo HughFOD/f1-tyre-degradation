@@ -1,16 +1,16 @@
 {
   "ranges_holdout": {
     "stints": 1635,
-    "inside 80% range": 0.7351681957186544,
+    "inside 80% range": 0.7363914373088685,
     "by year": {
       "2024": 0.6782608695652174,
       "2025": 0.7917485265225933,
-      "2026": 0.7422867513611615
+      "2026": 0.7459165154264973
     },
     "by compound": {
-      "HARD": 0.7281672816728167,
+      "HARD": 0.7293972939729397,
       "MEDIUM": 0.7712305025996534,
-      "SOFT": 0.673469387755102
+      "SOFT": 0.6775510204081633
     },
     "average width, s per 20 laps": 2.4154468046264306
   },
@@ -63,13 +63,13 @@
       "forecast": "track_history",
       "stints": 1635,
       "MAE (s per 20 laps)": 0.975,
-      "bias (s per 20 laps)": -0.203
+      "bias (s per 20 laps)": -0.211
     },
     {
       "forecast": "weekend",
       "stints": 1635,
-      "MAE (s per 20 laps)": 0.951,
-      "bias (s per 20 laps)": -0.078
+      "MAE (s per 20 laps)": 0.95,
+      "bias (s per 20 laps)": -0.086
     },
     {
       "forecast": "hindsight",
@@ -88,22 +88,22 @@
     "HARD": {
       "fuel_only": 1.278,
       "typical": 0.833,
-      "track_history": 0.811,
-      "weekend": 0.799,
+      "track_history": 0.813,
+      "weekend": 0.801,
       "hindsight": 0.591
     },
     "MEDIUM": {
       "fuel_only": 1.517,
       "typical": 1.035,
-      "track_history": 1.0,
-      "weekend": 0.961,
+      "track_history": 1.001,
+      "weekend": 0.962,
       "hindsight": 0.702
     },
     "SOFT": {
       "fuel_only": 1.934,
       "typical": 1.493,
-      "track_history": 1.46,
-      "weekend": 1.434,
+      "track_history": 1.451,
+      "weekend": 1.416,
       "hindsight": 0.928
     }
   },

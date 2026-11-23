@@ -1,6 +1,6 @@
 # F1 tyre degradation
 
-**Result:** forecasting how much time a stint will lose to tyre wear, using earlier races plus that weekend's practice running, gets within **0.95 s per 20-lap stint** on 1,635 stints from 2024 to November 2026, against 1.46 s if tyre wear is ignored. A pre-race pit plan built on those forecasts picks the right number of stops in 84% of dry races (judged against the best plan in hindsight). But it costs a median 7.8 s against that best plan, mostly because it trusts the soft tyre far more than teams do. Each forecast also comes with a range, and the README checks honestly how often those ranges hold. It also explains why the plans fall short, including eleven ideas tested to close the gap and which ones held up.
+**Result:** forecasting how much time a stint will lose to tyre wear, using earlier races plus that weekend's practice running, gets within **0.95 s per 20-lap stint** on 1,635 stints from 2024 to November 2026, against 1.46 s if tyre wear is ignored. A pre-race pit plan built on those forecasts picks the right number of stops in 84% of dry races (judged against the best plan in hindsight). But it costs a median 7.8 s against that best plan, mostly because it trusts the soft tyre far more than teams do. Each forecast also comes with a range, and the README checks honestly how often those ranges hold. It also explains why the plans fall short, including twelve ideas tested to close the gap and which ones held up.
 
 ![Tyre wear at Monza and in Hungary, 2026](docs/img/wear_monza_vs_hungary_2026.png)
 
@@ -14,6 +14,7 @@ Lap-by-lap timing for every race weekend from 2018 to November 2026 (lap time, t
 
 - **192 Grands Prix**, 212,182 laps. 83,800 of them are clean-air laps that show real pace (see below).
 - **5,369 long runs** from practice (FP1-FP3) and sprint races: stretches of 5+ race-pace laps on one set of tyres, which is how teams rehearse the race on Friday. That includes 1,921 runs on softs, against only about 250 soft stints in races.
+- **Pirelli's compound choice for 173 races (2019-2026)**: which rubber (C0 to C6) was the hard, medium and soft at each race, in `data/compounds.csv` with a source for every row. Most rows come from a list compiled with sources in [MisterKinn/f1-data-analyst](https://github.com/MisterKinn/f1-data-analyst/pull/127), spot-checked against seven Pirelli announcements (all matched). The two missing 2026 races (Las Vegas; the Bahrain GP relocated to Sepang) were added from Pirelli and Formula 1.
 
 ## The idea
 
@@ -56,18 +57,19 @@ Everything is **walk-forward**: each race is forecast from races that happened b
 | Ignore tyre wear (fuel only) | 1.46 |
 | Typical race | 1.00 |
 | This track's history | 0.975 |
-| **+ this weekend's practice** | **0.951** |
+| **+ this weekend's practice** | **0.950** |
 | Hindsight: fit on the race itself (not a forecast) | 0.68 |
 
 ![Forecast error by season](docs/img/stint_forecast_error.png)
 
 - **Modelling wear is most of the gain.** Ignoring it misses by half a second more per stint.
-- **Practice helps, a little and consistently.** It improves the forecast in every season (2024: 0.950 → 0.915 s, 2025: 0.854 → 0.846, 2026: 1.113 → 1.086) and on every compound. It also removes most of the forecast's tendency to under-predict wear (bias −0.20 → −0.08 s). Race by race the gain isn't certain yet (95% interval −0.01 to +0.04 s per race; 58% of races improve).
+- **Practice helps, a little and consistently.** It improves the forecast in every season (2024: 0.950 → 0.915 s, 2025: 0.854 → 0.846, 2026: 1.114 → 1.083) and on every compound. It also removes most of the forecast's tendency to under-predict wear (bias −0.21 → −0.09 s). Race by race the gain isn't certain yet (95% interval −0.01 to +0.04 s per race; 60% of races improve).
 - **Track history barely beats a typical race on 2024-26** (0.975 vs 1.00), and race by race the difference isn't distinguishable from zero. In 2023 it helped clearly (0.78 vs 0.92). Conditions on the day matter more than a track's past, which is why that weekend's practice adds something.
 - **Most of what's left can't be forecast.** Stints that should behave the same (same race, same compound, tyre ages within 3 laps at both ends: 2,063 pairs) still differ by about **0.60 s** per 20 laps each, and teammates in the same car by 0.62 s. That's how hard each driver pushes, traffic and tyre management. Hindsight (0.68 s) is already close to that floor (the red line in the chart), so of the forecast's 0.95 s, only about a third is left to win with better information.
-- **Softs are hardest** (1.43 s error vs 0.80 s for hards). They're raced least and in the shortest stints.
-- **2026 is the worst year** (1.09 s). New cars and tyres arrived, and history from the old cars fits them less well.
-- **New tracks are hard, and practice doesn't rescue them.** On the two tracks with no history (Las Vegas 2024, Madrid 2026; 54 stints) the error is 1.31 s, and practice makes it slightly worse (1.39 s): the surface changes too much over a new track's first weekend.
+- **Softs are hardest** (1.42 s error vs 0.80 s for hards). They're raced least and in the shortest stints.
+- **2026 is the worst year** (1.08 s). New cars and tyres arrived, and history from the old cars fits them less well.
+- **New tracks are hard, and practice doesn't rescue them.** On the three tracks with no history (Las Vegas 2024, Madrid 2026, and the 2026 Bahrain GP that was moved to Sepang in Malaysia; 67 stints) the error is 1.40 s, and practice makes it slightly worse (1.43 s): the surface changes too much over a new track's first weekend.
+- **Pirelli's compound choice adds nothing to the forecast, and that's informative.** Softer rubber doesn't wear faster across races: in the 18-inch era (2022-25) a C1 lost a median 1.47 s after 20 laps and a C5 0.78 s. Pirelli brings soft compounds to gentle tracks and hard ones to tough tracks, so "hard, medium, soft" are already balanced to behave alike at each circuit. Forecasting each compound from the same rubber's history at that track (rather than the same label) was slightly *worse*, including at the races where Pirelli changed compounds from the previous visit (9 in 2023: 0.80 → 0.82 s; 14 in 2024-26: 1.08 → 1.11 s).
 
 ### How sure is each forecast?
 
@@ -97,20 +99,21 @@ Widening the ranges to hit 80% on these seasons would mean tuning on the test se
 
 ## What I tried to improve it
 
-Eleven ideas, all reproducible with `python experiments.py` (results in `output/experiments.json`). Each was judged on 2023 first; anything that helped there was then scored on 2024-2026.
+Twelve ideas, all reproducible with `python experiments.py` (results in `output/experiments.json`). Each was judged on 2023 first; anything that helped there was then scored on 2024-2026.
 
 | Idea | Result |
 |---|---|
 | **More data: the 2018 season** | Kept. Forecasts about the same (0.972 → 0.975 s); pit plans better (median time lost 9.5 → 7.8 s, stops match hindsight 82% → 84%). |
-| **More data: practice and sprint long runs** (shift the forecast by this weekend's running) | **Kept.** 0.975 → 0.951 s on 2024-26, better in every season and compound. |
-| **Weight practice sessions differently**: FP2 race simulations and sprints count more? | No meaningful gain. The best 2023 setting drops FP3 (qualifying preparation), but on 2024-26 it moves the error only from 0.951 to 0.950 s (2026 got slightly worse). All sessions count equally. |
+| **More data: practice and sprint long runs** (shift the forecast by this weekend's running) | **Kept.** 0.975 → 0.950 s on 2024-26, better in every season and compound. |
+| **More data: Pirelli's compound choices** (forecast each compound from the same rubber's history, not the same label) | No. Slightly worse everywhere, including where Pirelli changed compounds (see Findings): Pirelli balances its choices so the labels already behave consistently. |
+| **Weight practice sessions differently**: FP2 race simulations and sprints count more? | No meaningful gain. The best 2023 setting drops FP3 (qualifying preparation), but on 2024-26 it changes the error by about 0.001 s (2026 got slightly worse). All sessions count equally. |
 | **Track temperature**: hotter race, more wear? | No. At the same track, hotter races showed no more wear (correlation −0.02 to −0.27 by compound, 2019-2023, the wrong direction). |
 | **Team or driver wear**: some cars are easier on tyres | Helped a little on 2023 (0.78 → 0.75 s), nothing on 2024-26 (0.975 → 0.971 s). Car-to-car differences within a race are mostly the same noise as teammate-to-teammate. |
 | **Watch the race**: re-fit wear on the first 40% of the race | Worse (0.78 → 0.94 s on 2023). Early laps on heavy fuel, a green track and managed pace mislead about later stints. |
 | **Plan for the race as it might go**: average over simulated races, with wear varied as much as it has year to year and safety cars as often as they've happened at each track | Passed 2023 once the 2018 data was added (median time lost 8.1 → 4.7 s), then **failed on 2024-26** (10.6 vs 10.2 s median, 14.6 vs 14.8 s mean; per race −0.8 to +0.2 s). The 2023 gain was luck. Not adopted. |
 | **Practice in the pit plans** | Shifting all compounds: no change. Using each compound's own practice running: plans pit when winners do (first stop within 0.5-3 laps of the winner's), but the lap-time model scores them much slower (mean 15-18 s). Not adopted. |
 | **Only plan stints as long as teams have run them at that track** | A trade-off. Plans get closer to the winners' (same number of stops 40% → 60%, first stop 9.1 → 3.8 laps closer) but score 3.8 → 8.4 s slower on lap time. |
-| **Similar tracks for new circuits** | Not built: only 54 holdout stints (3%) are on tracks with no history, too few to tune or test it honestly. |
+| **Similar tracks for new circuits** | Not built: only 67 holdout stints (4%) are on tracks with no history, and 7 in 2023 to tune on, too few to do it honestly. |
 | **Practice to fix the soft tyre** | No. Even with 1,921 soft long runs, plans still start on softs (60-65% on 2023). |
 
 The pattern in the last rows is the heart of the project. Whenever data pulls the plans toward what teams actually do, the lap-time model calls the result slower. The teams are seeing things clean-air lap times don't contain: track position, undercuts, graining, tyre cliffs. A model built only on lap times can't tell who's right, so scoring it against itself flatters it.
@@ -119,8 +122,7 @@ The pattern in the last rows is the heart of the project. Whenever data pulls th
 
 1. **Model track position and undercuts.** Plans should be scored on finishing position, not clean-air race time, which is what teams actually optimise.
 2. **The soft tyre's cliff and graining.** Use how and when stints *ended* (pit calls after a sudden drop-off) as well as average wear.
-3. **Which rubber each "soft" is.** Pirelli brings different compounds (C1 to C5) to each race. Adding that allocation would make "soft" mean the same thing from race to race. This is the most likely fix for the soft-tyre problem.
-4. **Pirelli's track ratings** (asphalt abrasion, tyre stress, traction), published before each race. They would help most on new tracks, where there's no history to lean on.
+3. **Pirelli's track ratings** (asphalt abrasion, tyre stress, traction), published before each race. They would help most on new tracks, where there's no history to lean on; so far they've only been collected in machine-readable form for 2025-26, too few seasons to learn from.
 
 ## Run it
 
@@ -138,7 +140,8 @@ Or from a terminal: `python run.py`, then `python experiments.py` to re-run the 
 |---|---|
 | `tyres/data.py` | download, tidy, gap to the car ahead, clean-lap filter, practice/sprint long runs |
 | `tyres/model.py` | the per-race lap-time model (fuel, compound offset, wear) |
-| `tyres/forecast.py` | forecasting wear from earlier races and the weekend's practice, and the stint test |
+| `tyres/forecast.py` | forecasting wear from earlier races and the weekend's practice, the stint test, forecast ranges, and the rubber-matching experiment |
+| `data/compounds.csv` | Pirelli's hard / medium / soft compound for 173 races, with sources |
 | `tyres/strategy.py` | pit-lane time loss, plan search, and the strategy tests |
 | `tyres/report.py` | charts |
 | `tyres/experiments.py`, `experiments.py` | the improvement ideas above and the noise-floor analysis |
@@ -146,4 +149,4 @@ Or from a terminal: `python run.py`, then `python experiments.py` to re-run the 
 
 ## Data
 
-Lap-by-lap timing 2018-2026 for races, sprints and practice from [TracingInsights](https://github.com/TracingInsights), which archives the official F1 live-timing feed via FastF1. A few 2018-2019 sessions are incomplete in the archive and are skipped. This project is unofficial and not associated with Formula 1 or Pirelli.
+Lap-by-lap timing 2018-2026 for races, sprints and practice from [TracingInsights](https://github.com/TracingInsights), which archives the official F1 live-timing feed via FastF1. A few 2018-2019 sessions are incomplete in the archive and are skipped. Pirelli compound choices: `data/compounds.csv` (a source for every row; see The data). This project is unofficial and not associated with Formula 1 or Pirelli.

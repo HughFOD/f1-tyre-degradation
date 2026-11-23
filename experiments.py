@@ -28,6 +28,7 @@ if __name__ == "__main__":
         "new tracks (2024-26)": experiments.new_tracks(hold).round(3).to_dict("records"),
         "practice session weights": experiments.session_weights(
             pd.read_csv(out / "stint_forecasts_validation.csv"), hold),
+        "Pirelli compound choices": experiments.pirelli_compounds(c, runs, params, RIDGE, TRACK_K),
         "noise floor (2024-26)": experiments.noise_floor(hold),
     }
     (out / "experiments.json").write_text(json.dumps(res, indent=2, default=float))

@@ -1,4 +1,6 @@
 """Forecasting tyre wear for a race from earlier races only, and testing it stint by stint."""
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -12,6 +14,8 @@ def track(race: str, year: int) -> str:
     """One name per circuit. In 2026 the Spanish GP moved to Madrid and Barcelona's race was renamed."""
     if year >= 2026 and race == "Spanish Grand Prix":
         return "Madrid"
+    if year == 2026 and race == "Bahrain Grand Prix":      # relocated: "Bahrain Grand Prix in Malaysia", Sepang
+        return "Sepang"
     if race == "Barcelona Grand Prix":
         return "Spanish Grand Prix"
     return SAME_TRACK.get(race, race)
@@ -105,7 +109,8 @@ def weekend_signal(runs: pd.DataFrame, fc: dict) -> dict:
 
 
 def walk_forward(c: pd.DataFrame, years, ridge: float, k: float, first_train: int = 2018,
-                 runs: pd.DataFrame | None = None) -> pd.DataFrame:
+                 runs: pd.DataFrame | None = None, alloc: pd.DataFrame | None = None,
+                 k_rubber: float | None = None) -> pd.DataFrame:
     """For every race in `years`: fit the parameters of all EARLIER races, forecast this race's
     wear from them, and compare with what its stints actually did. Also records two simpler
     forecasts (fuel only; typical race) and the hindsight fit of the race itself (not a forecast:
@@ -128,6 +133,9 @@ def walk_forward(c: pd.DataFrame, years, ridge: float, k: float, first_train: in
         this = c[c["race_id"] == rid]
         trk = s["track"].iloc[0]
         fc = track_forecast(past, trk, glob, k)
+        fc_rub, matched = (rubber_forecast(fc, past, trk, int(s["year"].iloc[0]), s["race"].iloc[0], alloc,
+                                           k if k_rubber is None else k_rubber, glob)
+                           if alloc is not None else (fc, {}))
         hind = model.fit_race(this, prior=glob, ridge=ridge) if this["compound"].nunique() >= 2 else None
         for comp, g in s.groupby("compound"):
             row = g[["race_id", "year", "race", "date", "track", "driver", "team", "stint", "compound", "age0", "age1",
@@ -135,6 +143,9 @@ def walk_forward(c: pd.DataFrame, years, ridge: float, k: float, first_train: in
             row["fuel_only"] = glob["fuel"]
             row["typical"] = predicted_slope(glob, comp, g["age0"], g["age1"])
             row["track_history"] = predicted_slope(fc, comp, g["age0"], g["age1"])
+            if alloc is not None:
+                row["rubber"] = predicted_slope(fc_rub, comp, g["age0"], g["age1"])
+                row["rubber_matched"] = matched.get(comp, 0)
             row["hindsight"] = predicted_slope(hind, comp, g["age0"], g["age1"]) if hind else np.nan
             row["track_seen_before"] = (past["track"] == trk).any()
             if runs is not None:
@@ -252,3 +263,55 @@ def range_coverage(w: pd.DataFrame) -> dict:
             "by year": {int(k): float(v) for k, v in inside.groupby(h["year"]).mean().items()},
             "by compound": {k: float(v) for k, v in inside.groupby(h["compound"]).mean().items()},
             "average width, s per 20 laps": float(((h["range_high"] - h["range_low"]) * 19).mean())}
+
+
+# ---------- Pirelli's compound choice: match by rubber, not by label ----------
+
+COMPOUNDS_CSV = Path(__file__).resolve().parent.parent / "data" / "compounds.csv"
+
+
+def generation(year: int) -> str:
+    """Tyre generations within which C-numbers mean the same rubber: 13-inch tyres (2019-21),
+    18-inch tyres (2022-25, with 2022's C1 renamed C0 from 2023), and the narrower 2026 tyres."""
+    return "13in" if year <= 2021 else ("18in" if year <= 2025 else "2026")
+
+
+def load_allocations(path=COMPOUNDS_CSV) -> pd.DataFrame:
+    """Pirelli's hard / medium / soft C-numbers per race, as integers on one scale per generation."""
+    a = pd.read_csv(path)
+    for lab in ("hard", "medium", "soft"):
+        n = a[lab].str.extract(r"C(\d)")[0].astype(int)
+        a[lab] = n.where(~((a["year"] == 2022) & (n == 1)), 0)     # 2022's C1 became 2023's C0
+    a["gen"] = a["year"].map(generation)
+    return a
+
+
+def rubber_forecast(fc: dict, past: pd.DataFrame, trk: str, year: int, race: str, alloc: pd.DataFrame,
+                    k: float, glob: dict, halflife: float = 2.0) -> tuple[dict, dict]:
+    """Replace each compound's wear with that of the SAME RUBBER at this track in earlier races of
+    the same tyre generation (whatever it was called then). Returns the new forecast and, per
+    compound, how many past races were matched (0 = kept the label-based forecast)."""
+    cur = alloc[(alloc["year"] == year) & (alloc["race"] == race)]
+    out, matched = dict(fc), {c: 0 for c in model.COMPOUNDS}
+    if cur.empty:
+        return out, matched
+    cur = cur.iloc[0]
+    h = past[past["track"] == trk].merge(alloc, on=["year", "race"], how="inner")
+    h = h[h["gen"] == cur["gen"]]
+    if h.empty:
+        return out, matched
+    w_all = 0.5 ** ((h["year"].max() - h["year"]) / halflife)
+    for comp in model.COMPOUNDS:
+        c = cur[comp.lower()]
+        wear, curve, wts = [], [], []
+        for (i, r), w in zip(h.iterrows(), w_all):
+            for lab in model.COMPOUNDS:
+                if r[lab.lower()] == c and r[f"laps_{lab}"] >= 100:
+                    wear.append(r[f"wear_{lab}"]); curve.append(r[f"curve_{lab}"]); wts.append(w)
+        if not wts:
+            continue
+        n = sum(wts)
+        out[f"wear_{comp}"] = (n / (n + k)) * np.average(wear, weights=wts) + (k / (n + k)) * glob[f"wear_{comp}"]
+        out[f"curve_{comp}"] = (n / (n + k)) * np.average(curve, weights=wts) + (k / (n + k)) * glob[f"curve_{comp}"]
+        matched[comp] = len(wts)
+    return out, matched
