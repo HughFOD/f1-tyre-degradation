@@ -135,3 +135,27 @@ def new_tracks(w: pd.DataFrame) -> pd.DataFrame:
         rows.append({"track": "raced before" if seen else "no history", "stints": len(g),
                      **{f: float(((g[f] - g["slope"]).abs() * 19).mean()) for f in ("typical", "track_history", "weekend")}})
     return pd.DataFrame(rows)
+
+
+def session_weights(val: pd.DataFrame, hold: pd.DataFrame, beta: float = 0.15, k: float = 10) -> dict:
+    """Should race-simulation sessions count more? Weights for FP1 / FP3 / sprint relative to FP2,
+    chosen on 2023, scored on 2024-26 against equal weights."""
+    S = ("FP1", "FP2", "FP3", "S")
+
+    def pred(w, b, kk, wts):
+        num = sum(wts[s] * w[f"wk_sum_{s}"] for s in S)
+        n = sum(wts[s] * w[f"wk_n_{s}"] for s in S)
+        return w["track_history"] + b * num / (n + kk)
+
+    def mae(w, p):
+        return float(((p - w["slope"]).abs() * 19).mean())
+
+    equal = {s: 1.0 for s in S}
+    grid = []
+    for f1, f3, sp, b, kk in itertools.product([0, .5, 1], [0, .5, 1], [1, 2, 4], [.1, .15, .25, .35], [5, 10, 20]):
+        wts = {"FP1": f1, "FP2": 1.0, "FP3": f3, "S": sp}
+        grid.append((mae(val, pred(val, b, kk, wts)), wts, b, kk))
+    best = min(grid, key=lambda r: r[0])
+    return {"best weights (2023)": best[1], "2023 equal": mae(val, pred(val, beta, k, equal)), "2023 best": best[0],
+            "2024-26 equal": mae(hold, pred(hold, beta, k, equal)),
+            "2024-26 best": mae(hold, pred(hold, best[2], best[3], best[1]))}

@@ -90,13 +90,17 @@ def weekend_signal(runs: pd.DataFrame, fc: dict) -> dict:
     per compound and overall, the summed miss (actual minus forecast trend, s/lap) and the count."""
     if runs is None or runs.empty:
         return {}
+    groups = list(runs.groupby("compound", sort=False))
     miss = runs["slope"].to_numpy() - np.concatenate(
-        [predicted_slope(fc, comp, g["age0"], g["age1"]) for comp, g in runs.groupby("compound", sort=False)])
-    comps = np.concatenate([g["compound"].to_numpy() for _, g in runs.groupby("compound", sort=False)])
+        [predicted_slope(fc, comp, g["age0"], g["age1"]) for comp, g in groups])
+    miss = pd.Series(miss, index=np.concatenate([g.index.to_numpy() for _, g in groups])).reindex(runs.index)
     out = {"all": (float(miss.sum()), len(miss))}
     for comp in model.COMPOUNDS:
-        m = comps == comp
+        m = runs["compound"] == comp
         out[comp] = (float(miss[m].sum()), int(m.sum()))
+    for ses in ("FP1", "FP2", "FP3", "S"):
+        m = runs["session"] == ses
+        out[ses] = (float(miss[m].sum()), int(m.sum()))
     return out
 
 
@@ -137,6 +141,8 @@ def walk_forward(c: pd.DataFrame, years, ridge: float, k: float, first_train: in
                 sig = weekend_signal(runs[runs["race_id"] == rid], fc)
                 row["wk_sum_comp"], row["wk_n_comp"] = sig.get(comp, (0.0, 0))
                 row["wk_sum_all"], row["wk_n_all"] = sig.get("all", (0.0, 0))
+                for ses in ("FP1", "FP2", "FP3", "S"):
+                    row[f"wk_sum_{ses}"], row[f"wk_n_{ses}"] = sig.get(ses, (0.0, 0))
             out.append(row)
     return pd.concat(out, ignore_index=True)
 
@@ -217,3 +223,32 @@ def weekend_adjust(fc: dict, runs: pd.DataFrame | None, beta: float, k: float, p
                 d = s_c / (n_c + (k_comp or k))
         out[f"wear_{comp}"] = fc[f"wear_{comp}"] + beta * d
     return out
+
+
+def add_ranges(w: pd.DataFrame, col: str = "weekend", q=(0.1, 0.9)) -> pd.DataFrame:
+    """An 80% range around each stint forecast, built only from earlier seasons' misses on the
+    same compound (a season with no earlier seasons in `w` gets no range). Columns range_low /
+    range_high are lap-time trends in s/lap, like the forecast itself."""
+    w = w.copy()
+    miss = w["slope"] - w[col]
+    w["range_low"], w["range_high"] = np.nan, np.nan
+    for y in sorted(w["year"].unique()):
+        past = w["year"] < y
+        for comp in model.COMPOUNDS:
+            prev = miss[past & (w["compound"] == comp)]
+            if len(prev) < 30:
+                continue
+            lo, hi = np.quantile(prev, q)
+            m = (w["year"] == y) & (w["compound"] == comp)
+            w.loc[m, "range_low"], w.loc[m, "range_high"] = w.loc[m, col] + lo, w.loc[m, col] + hi
+    return w
+
+
+def range_coverage(w: pd.DataFrame) -> dict:
+    """Share of stints whose actual trend fell inside their 80% range, overall / by year / compound."""
+    h = w.dropna(subset=["range_low"])
+    inside = (h["slope"] >= h["range_low"]) & (h["slope"] <= h["range_high"])
+    return {"stints": int(len(h)), "inside 80% range": float(inside.mean()),
+            "by year": {int(k): float(v) for k, v in inside.groupby(h["year"]).mean().items()},
+            "by compound": {k: float(v) for k, v in inside.groupby(h["compound"]).mean().items()},
+            "average width, s per 20 laps": float(((h["range_high"] - h["range_low"]) * 19).mean())}

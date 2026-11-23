@@ -26,6 +26,8 @@ if __name__ == "__main__":
         "stint limits from track history (2023)": experiments.stint_caps(d, c, RIDGE, TRACK_K).round(2).to_dict("records"),
         "practice in the pit plans (2023)": experiments.practice_in_strategy(d, c, runs, RIDGE, TRACK_K).round(2).to_dict("records"),
         "new tracks (2024-26)": experiments.new_tracks(hold).round(3).to_dict("records"),
+        "practice session weights": experiments.session_weights(
+            pd.read_csv(out / "stint_forecasts_validation.csv"), hold),
         "noise floor (2024-26)": experiments.noise_floor(hold),
     }
     (out / "experiments.json").write_text(json.dumps(res, indent=2, default=float))

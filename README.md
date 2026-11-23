@@ -1,6 +1,6 @@
 # F1 tyre degradation
 
-**Result:** forecasting how much time a stint will lose to tyre wear, using earlier races plus that weekend's practice running, gets within **0.95 s per 20-lap stint** on 1,635 stints from 2024 to November 2026, against 1.46 s if tyre wear is ignored. A pre-race pit plan built on those forecasts picks the right number of stops in 84% of dry races (judged against the best plan in hindsight). But it costs a median 7.8 s against that best plan, mostly because it trusts the soft tyre far more than teams do. This README explains why, including ten ideas tested to close the gap and which ones held up.
+**Result:** forecasting how much time a stint will lose to tyre wear, using earlier races plus that weekend's practice running, gets within **0.95 s per 20-lap stint** on 1,635 stints from 2024 to November 2026, against 1.46 s if tyre wear is ignored. A pre-race pit plan built on those forecasts picks the right number of stops in 84% of dry races (judged against the best plan in hindsight). But it costs a median 7.8 s against that best plan, mostly because it trusts the soft tyre far more than teams do. Each forecast also comes with a range, and the README checks honestly how often those ranges hold. It also explains why the plans fall short, including eleven ideas tested to close the gap and which ones held up.
 
 ![Tyre wear at Monza and in Hungary, 2026](docs/img/wear_monza_vs_hungary_2026.png)
 
@@ -69,6 +69,16 @@ Everything is **walk-forward**: each race is forecast from races that happened b
 - **2026 is the worst year** (1.09 s). New cars and tyres arrived, and history from the old cars fits them less well.
 - **New tracks are hard, and practice doesn't rescue them.** On the two tracks with no history (Las Vegas 2024, Madrid 2026; 54 stints) the error is 1.31 s, and practice makes it slightly worse (1.39 s): the surface changes too much over a new track's first weekend.
 
+### How sure is each forecast?
+
+Every stint forecast comes with an 80% range: how much faster or slower the stint might go, built from how far off earlier seasons' forecasts were on the same compound (2024's ranges come from 2023's misses, 2025's from 2023-24, and so on, so no range sees its own season). An 80% range is about 2.4 s wide over a 20-lap stint.
+
+**They hold 74% of the time, not 80%:**
+- **By season:** 68% in 2024, 79% in 2025, 74% in 2026. Later seasons have mostly been harder to forecast than the ones their ranges were built from.
+- **By compound:** softs hold only 67%. Softs are raced least, so their earlier misses understate how wrong a soft forecast can be.
+
+Widening the ranges to hit 80% on these seasons would mean tuning on the test seasons, so they're reported as they came out: treat them as roughly 75% ranges.
+
 ### Pit strategy (61 dry races)
 
 | | |
@@ -87,12 +97,13 @@ Everything is **walk-forward**: each race is forecast from races that happened b
 
 ## What I tried to improve it
 
-Ten ideas, all reproducible with `python experiments.py` (results in `output/experiments.json`). Each was judged on 2023 first; anything that helped there was then scored on 2024-2026.
+Eleven ideas, all reproducible with `python experiments.py` (results in `output/experiments.json`). Each was judged on 2023 first; anything that helped there was then scored on 2024-2026.
 
 | Idea | Result |
 |---|---|
 | **More data: the 2018 season** | Kept. Forecasts about the same (0.972 → 0.975 s); pit plans better (median time lost 9.5 → 7.8 s, stops match hindsight 82% → 84%). |
 | **More data: practice and sprint long runs** (shift the forecast by this weekend's running) | **Kept.** 0.975 → 0.951 s on 2024-26, better in every season and compound. |
+| **Weight practice sessions differently**: FP2 race simulations and sprints count more? | No meaningful gain. The best 2023 setting drops FP3 (qualifying preparation), but on 2024-26 it moves the error only from 0.951 to 0.950 s (2026 got slightly worse). All sessions count equally. |
 | **Track temperature**: hotter race, more wear? | No. At the same track, hotter races showed no more wear (correlation −0.02 to −0.27 by compound, 2019-2023, the wrong direction). |
 | **Team or driver wear**: some cars are easier on tyres | Helped a little on 2023 (0.78 → 0.75 s), nothing on 2024-26 (0.975 → 0.971 s). Car-to-car differences within a race are mostly the same noise as teammate-to-teammate. |
 | **Watch the race**: re-fit wear on the first 40% of the race | Worse (0.78 → 0.94 s on 2023). Early laps on heavy fuel, a green track and managed pace mislead about later stints. |
@@ -108,7 +119,8 @@ The pattern in the last rows is the heart of the project. Whenever data pulls th
 
 1. **Model track position and undercuts.** Plans should be scored on finishing position, not clean-air race time, which is what teams actually optimise.
 2. **The soft tyre's cliff and graining.** Use how and when stints *ended* (pit calls after a sudden drop-off) as well as average wear.
-3. **Which rubber each "soft" is.** Pirelli brings different compounds (C1 to C5) to each race. Adding that allocation would make "soft" mean the same thing from race to race.
+3. **Which rubber each "soft" is.** Pirelli brings different compounds (C1 to C5) to each race. Adding that allocation would make "soft" mean the same thing from race to race. This is the most likely fix for the soft-tyre problem.
+4. **Pirelli's track ratings** (asphalt abrasion, tyre stress, traction), published before each race. They would help most on new tracks, where there's no history to lean on.
 
 ## Run it
 
@@ -130,7 +142,7 @@ Or from a terminal: `python run.py`, then `python experiments.py` to re-run the 
 | `tyres/strategy.py` | pit-lane time loss, plan search, and the strategy tests |
 | `tyres/report.py` | charts |
 | `tyres/experiments.py`, `experiments.py` | the improvement ideas above and the noise-floor analysis |
-| `output/` | wear for every race, every long run, every stint forecast, every race's plans, `summary.json`, `experiments.json` |
+| `output/` | wear for every race, every long run, every stint forecast with its 80% range, every race's plans, `summary.json`, `experiments.json` |
 
 ## Data
 

@@ -140,6 +140,18 @@
       "weekend": 0.936
     }
   ],
+  "practice session weights": {
+    "best weights (2023)": {
+      "FP1": 1,
+      "FP2": 1.0,
+      "FP3": 0,
+      "S": 1
+    },
+    "2023 equal": 0.756701934221098,
+    "2023 best": 0.747207421798952,
+    "2024-26 equal": 0.9513715883704428,
+    "2024-26 best": 0.9503016745056112
+  },
   "noise floor (2024-26)": {
     "matched pairs": 2063,
     "teammate pairs": 158,

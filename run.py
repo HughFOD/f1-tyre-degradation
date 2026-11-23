@@ -39,8 +39,11 @@ def main():
     params = forecast.race_params(c, glob, RIDGE)
     params.to_csv(out / "wear_by_race.csv", index=False)
     summary = {}
+    both = forecast.add_weekend(forecast.walk_forward(c, VALIDATION + HOLDOUT, RIDGE, TRACK_K, runs=runs), **WEEKEND)
+    both = forecast.add_ranges(both)                  # each season's ranges from earlier seasons' misses
+    summary["ranges_holdout"] = forecast.range_coverage(both[both["year"].isin(HOLDOUT)])
     for name, yrs in (("validation", VALIDATION), ("holdout", HOLDOUT)):
-        w = forecast.add_weekend(forecast.walk_forward(c, yrs, RIDGE, TRACK_K, runs=runs), **WEEKEND)
+        w = both[both["year"].isin(yrs)]
         w.to_csv(out / f"stint_forecasts_{name}.csv", index=False)
         summary[f"stint_{name}"] = forecast.score(w).round(3).to_dict("records")
         if name == "holdout":

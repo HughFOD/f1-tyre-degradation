@@ -110,3 +110,15 @@ def test_weekend_shift_is_zero_without_practice():
     w = pd.DataFrame({"track_history": [0.05, 0.10], "wk_sum_all": [0.0, 0.0], "wk_n_all": [0, 0]})
     out = forecast.add_weekend(w, beta=0.15, k=10)
     assert np.allclose(out["weekend"], w["track_history"])
+
+
+def test_ranges_use_only_earlier_seasons():
+    rng = np.random.default_rng(1)
+    n = 200
+    w = pd.DataFrame({"year": np.repeat([2023, 2024], n), "compound": "HARD",
+                      "weekend": 0.05, "slope": 0.05 + rng.normal(0, 0.02, 2 * n)})
+    w.loc[w["year"] == 2024, "slope"] += 10           # a wild later season must not affect its own range
+    out = forecast.add_ranges(w)
+    assert out.loc[out["year"] == 2023, "range_low"].isna().all()      # nothing earlier to learn from
+    width = (out["range_high"] - out["range_low"]).dropna()
+    assert (width < 0.2).all()                                          # built from 2023's small misses only
