@@ -50,7 +50,7 @@ def wear_curves(c: pd.DataFrame, race_id: str, path):
     plt.close(fig)
 
 
-def forecast_errors(w: pd.DataFrame, path):
+def forecast_errors(w: pd.DataFrame, path, floor: float | None = None):
     e = {f: ((w[f] - w["slope"]).abs() * 19).groupby(w["year"]).mean() for f in NAMES}
     t = pd.DataFrame(e)
     fig, ax = plt.subplots(figsize=(8, 4))
@@ -60,6 +60,10 @@ def forecast_errors(w: pd.DataFrame, path):
         ax.bar(x + (i - 1.5) * .2, t[f], .19, label=NAMES[f], color=cols[i])
     ax.set_xticks(x, t.index.astype(str))
     ax.set_ylim(0, t.to_numpy().max() * 1.3)
+    if floor is not None:
+        ax.axhline(floor, color="#e4572e", lw=1.2, ls="--")
+        ax.text(len(t) - 0.5, floor + 0.03, f"unpredictable part (~{floor:.1f} s): even matched stints differ this much",
+                ha="right", va="bottom", fontsize=8, color="#e4572e")
     ax.set_ylabel("Avg error, seconds per 20-lap stint")
     ax.set_title("Forecasting how much time a stint loses (each race forecast from earlier races)", loc="left", fontsize=11)
     _style(ax)

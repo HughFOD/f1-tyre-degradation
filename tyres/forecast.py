@@ -67,7 +67,8 @@ def stints(c: pd.DataFrame, min_laps: int = 8) -> pd.DataFrame:
             continue
         x, y = g["lap"].to_numpy(float), g["lap_time"].to_numpy(float)
         slope = np.polyfit(x, y, 1)[0]
-        rows.append(dict(race_id=rid, year=g["year"].iloc[0], race=g["race"].iloc[0], driver=drv, stint=st,
+        rows.append(dict(race_id=rid, year=g["year"].iloc[0], race=g["race"].iloc[0], date=g["date"].iloc[0],
+                         driver=drv, team=g["team"].iloc[0], stint=st,
                          compound=g["compound"].iloc[0], age0=g["tyre_age"].min(), age1=g["tyre_age"].max(),
                          laps=len(g), slope=slope))
     s = pd.DataFrame(rows)
@@ -109,7 +110,8 @@ def walk_forward(c: pd.DataFrame, years, ridge: float, k: float, first_train: in
         fc = track_forecast(past, trk, glob, k)
         hind = model.fit_race(this, prior=glob, ridge=ridge) if this["compound"].nunique() >= 2 else None
         for comp, g in s.groupby("compound"):
-            row = g[["race_id", "year", "race", "track", "driver", "stint", "compound", "age0", "age1", "laps", "slope"]].copy()
+            row = g[["race_id", "year", "race", "date", "track", "driver", "team", "stint", "compound", "age0", "age1",
+                     "laps", "slope"]].copy()
             row["fuel_only"] = glob["fuel"]
             row["typical"] = predicted_slope(glob, comp, g["age0"], g["age1"])
             row["track_history"] = predicted_slope(fc, comp, g["age0"], g["age1"])

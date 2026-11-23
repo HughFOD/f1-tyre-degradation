@@ -53,7 +53,7 @@ Everything is **walk-forward**: each race is forecast from races that happened b
 
 - **Modelling wear is most of the gain.** Ignoring it misses by half a second more per stint.
 - **Track history helped clearly in 2023** (0.78 vs 0.93 s for a typical race) **but only marginally in 2024-26** (0.97 vs 1.00). Race by race, the difference isn't distinguishable from zero (95% interval −0.07 to +0.07 s). Conditions on the day (temperature, which compounds Pirelli brings, track surface changes) matter more than the track's past.
-- **Even hindsight misses by 0.68 s.** That's the floor: drivers manage their pace and fight traffic in ways no lap-time model captures.
+- **Even hindsight misses by 0.68 s, and that's close to the floor.** Stints that should behave the same (same race, same compound, tyre ages within 3 laps at both ends: 2,063 pairs) still differ by about **0.60 s** per 20 laps each, and teammates in the same car by 0.62 s. That part is how hard each driver pushes, traffic and tyre management, and no pre-race forecast can know it. So of the forecast's 0.97 s, only about a third is left to win with better information (the red line in the chart below).
 - **Softs are hardest** (1.45 s error vs 0.81 s for hards). They're used least and in the shortest stints, so their wear is measured worst.
 - **2026 is the worst year** (1.11 s). New cars and tyres arrived, and history from the old cars fits them less well.
 - **Watching the race doesn't help.** Re-fitting wear on the first 40% of the race made forecasts for later stints worse (0.94 vs 0.79 s, tested on 2023). Early laps run on heavy fuel, a green track and managed pace, and they mislead about later stints.
@@ -70,15 +70,28 @@ Everything is **walk-forward**: each race is forecast from races that happened b
 
 - **Number of stops: nearly as good as it gets with this approach.** The pre-race plan agrees with the winner about as often as the hindsight-best plan does (64% vs 66%). The remaining disagreement comes from things lap times don't show: track position, undercuts, safety cars.
 - **Tyre choice is the weak spot.** The model starts most races on softs; winners almost never do. In race trim, new softs, mediums and hards come out within about a tenth of a second of each other in this data, not even in the expected order. So the model rarely sees a reason to avoid the soft's faster wear, while teams know softs also grain, overheat and fall off a cliff. Those effects show up as lost track position, not in clean-air lap times. This is the main reason a plan that gets the number of stops right still loses 9.5 s.
-- **Safety cars.** 45 of the 61 dry races had a safety car or VSC. In those, the winner stopped twice or more 49% of the time, against 31% without one. A stop under a safety car costs about half as much, and this model doesn't account for that. (In 2023 the difference didn't appear, so treat it as suggestive.)
+- **Safety cars.** 45 of the 61 dry races had a safety car or VSC. In those, the winner stopped twice or more 49% of the time, against 31% without one. A stop under a safety car costs about half as much. Building expected safety cars into the planning didn't change its choices, though (see What I tried): the gain comes from reacting when one happens, not from planning for one in advance. (In 2023 the difference didn't appear, so treat it as suggestive.)
 
 ![First stop: model vs winner](docs/img/first_stop.png)
 
+## What I tried to improve it
+
+Four ideas, each judged on 2023 first; only an idea that helped there would go on to be scored on 2024-2026. None made the cut, and why they failed is itself informative. All are reproducible with `python experiments.py` (results in `output/experiments.json`).
+
+| Idea | Result |
+|---|---|
+| **Track temperature**: hotter race, more wear? | No. At the same track, races with a hotter track showed no more wear (correlation −0.07 to −0.16 by compound, 2019-2023). |
+| **Team or driver wear**: some cars are easier on tyres | Helped a little on 2023 (0.78 → 0.75 s), nothing on 2024-26 (0.972 → 0.969 s). Within a race, car-to-car differences are mostly the same noise as teammate-to-teammate. |
+| **Plan for the race as it might go**: average over simulated races, with wear varied as much as it has year to year and safety cars as often as they've happened at each track | No better than the plain plan (median 9.9 vs 10.0 s lost on 2023) and *more* soft starts. When the soft's estimate is the problem, adding noise around it doesn't fix it. |
+| **Only plan stints as long as teams have run them at that track** | A trade-off, not a win. Plans get much closer to what winners did (same number of stops 35% → 60%, first stop 9.6 → 3.6 laps closer), but the lap-time model scores them 3.8 → 7.5 s slower. |
+
+The last row is the heart of the project. When the model and the teams disagree, the teams are seeing things clean-air lap times don't contain: track position, undercuts, graining, tyre cliffs. A model built only on lap times can't tell who's right, so scoring it against itself flatters it.
+
 ## What would make it better
 
-1. **Model the soft tyre's cliff and graining.** Use stint-end behaviour (how long stints *could* have gone) rather than average wear only.
-2. **Safety cars in the strategy:** simulate races with random safety cars drawn from each track's history, and pick the plan that is best on average rather than in a clean race.
-3. **Track temperature and compound allocation** (C1 to C5) as inputs to the wear forecast.
+1. **Model track position and undercuts.** Plans should be scored on finishing position, not clean-air race time, which is what teams actually optimise.
+2. **The soft tyre's cliff and graining.** Use how and when stints *ended* (pit calls after a sudden drop-off) as well as average wear.
+3. **Which rubber each "soft" is.** Pirelli brings different compounds (C1 to C5) to each race. Adding that allocation would make "soft" mean the same thing from race to race.
 
 ## Run it
 
@@ -88,7 +101,7 @@ In PyCharm, open each file and click the green ▶ arrow:
 2. `step2_run_analysis.py`: downloads the lap data (first time about 60 MB from GitHub), fits every race, runs both tests, writes `output/` and the charts (about 3 minutes)
 3. `step3_run_tests.py`: the automatic checks
 
-Or from a terminal: `python run.py`.
+Or from a terminal: `python run.py`, then `python experiments.py` to re-run the improvement tests (about 5 minutes).
 
 ## Files
 
@@ -99,6 +112,7 @@ Or from a terminal: `python run.py`.
 | `tyres/forecast.py` | forecasting wear from earlier races, and the stint test |
 | `tyres/strategy.py` | pit-lane time loss, plan search, and the strategy test |
 | `tyres/report.py` | charts |
+| `tyres/experiments.py`, `experiments.py` | the improvement ideas above and the noise-floor analysis |
 | `output/` | wear for every race, every stint forecast, every race's plans, `summary.json` |
 
 ## Data

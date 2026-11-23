@@ -40,7 +40,11 @@ def main():
         w.to_csv(out / f"stint_forecasts_{name}.csv", index=False)
         summary[f"stint_{name}"] = forecast.score(w).round(3).to_dict("records")
         if name == "holdout":
-            report.forecast_errors(w, img / "stint_forecast_error.png")
+            from tyres import experiments
+            floor = experiments.noise_floor(w)
+            summary["noise_floor_holdout"] = floor
+            report.forecast_errors(w, img / "stint_forecast_error.png",
+                                   floor=floor["unpredictable part, s per 20 laps (all pairs)"])
             summary["stint_holdout_by_compound"] = {
                 k: forecast.score(g).set_index("forecast")["MAE (s per 20 laps)"].round(3).to_dict()
                 for k, g in w.groupby("compound")}
