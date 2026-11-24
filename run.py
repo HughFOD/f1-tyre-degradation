@@ -88,6 +88,9 @@ def main():
     report.wear_pair(c, ids["Italian Grand Prix"], ids["Hungarian Grand Prix"],
                      img / "wear_monza_vs_hungary_2026.png")
     (out / "summary.json").write_text(json.dumps(summary, indent=2, default=float))
+    if (out / "experiments.json").exists():           # the page also shows the experiments' results
+        from tyres import website
+        website.build()
     print(f"\nDone in {time.time() - t0:.0f}s. See output/summary.json")
     return summary
 

@@ -5,6 +5,7 @@ pit lane. Fuel burn and the driver's base pace are the same whatever the plan, s
 The rules require at least two different dry compounds in a dry race.
 """
 import itertools
+import json
 
 import numpy as np
 import pandas as pd
@@ -171,7 +172,12 @@ def evaluate(d: pd.DataFrame, c: pd.DataFrame, years, ridge: float, k: float,
             team_stops.append(len(g) - 1)
         win = a[a["finish"] == a["finish"].min()].sort_values("stint")
         sc_share = (d[(d["race_id"] == rid) & (d["pos"] == 1)]["status"].str.contains("4|6|7")).mean()
+        keep = ["fuel"] + [f"{p}_{k_}" for k_ in COMPOUNDS for p in ("offset", "wear", "curve")]
+        used = this["compound"].value_counts()
         rows.append(dict(race_id=rid, year=year, race=race, laps=total, pit_loss=round(pit_h, 1), sc_share=sc_share,
+                         forecast_params=json.dumps({x: round(float(fc[x]), 5) for x in keep}),
+                         actual_params=json.dumps({x: round(float(hind[x]), 5) for x in keep}),
+                         clean_laps=json.dumps({k_: int(used.get(k_, 0)) for k_ in COMPOUNDS}),
                          plan=" > ".join(f"{c_[0]}{l_}" for c_, l_ in zip(f_plan["compounds"], f_plan["laps"])),
                          hindsight_plan=" > ".join(f"{c_[0]}{l_}" for c_, l_ in zip(h_plan["compounds"], h_plan["laps"])),
                          winner_plan=" > ".join(f"{c_[0]}{l_}" for c_, l_ in zip(win["compound"], win["laps"])),

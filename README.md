@@ -1,5 +1,7 @@
 # F1 tyre degradation
 
+**Website: https://hughod.com/f1-tyre-degradation/** (pick a track to see its wear curves and pit plans)
+
 **Result:** forecasting how much time a stint will lose to tyre wear, using earlier races plus that weekend's practice running, gets within **0.95 s per 20-lap stint** on 1,635 stints from 2024 to November 2026, against 1.46 s if tyre wear is ignored. A pre-race pit plan built on those forecasts picks the right number of stops in 84% of dry races (judged against the best plan in hindsight). But it costs a median 7.8 s against that best plan, mostly because it trusts the soft tyre far more than teams do. Each forecast also comes with a range, and the README checks honestly how often those ranges hold. It also explains why the plans fall short, including twelve ideas tested to close the gap and which ones held up.
 
 ![Tyre wear at Monza and in Hungary, 2026](docs/img/wear_monza_vs_hungary_2026.png)
@@ -144,6 +146,7 @@ Or from a terminal: `python run.py`, then `python experiments.py` to re-run the 
 | `data/compounds.csv` | Pirelli's hard / medium / soft compound for 173 races, with sources |
 | `tyres/strategy.py` | pit-lane time loss, plan search, and the strategy tests |
 | `tyres/report.py` | charts |
+| `tyres/website.py` | builds the project page, `docs/index.html` |
 | `tyres/experiments.py`, `experiments.py` | the improvement ideas above and the noise-floor analysis |
 | `output/` | wear for every race, every long run, every stint forecast with its 80% range, every race's plans, `summary.json`, `experiments.json` |
 

@@ -1,0 +1,234 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How fast do F1 tyres wear out? | Hugh O'Donnell</title>
+<meta name="description" content="Tyre wear separated from fuel burn for every F1 race since 2018, forecast before each race, and tested on pit strategy.">
+<link rel="canonical" href="https://hughod.com/f1-tyre-degradation/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='%2324282c' stroke='%23ee3b2b' stroke-width='6'/%3E%3C/svg%3E">
+<style>
+:root{--asphalt:#24282c;--kerb:#2f3439;--line:#434a51;--chalk:#eceeea;--dust:#a3aab1;
+--soft:#ee3b2b;--medium:#f4c430;--hard:#f2f3ef;--model:#7cc3ef;
+--wide:"Archivo",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--asphalt);color:var(--chalk);font:400 17px/1.6 var(--wide);font-stretch:100%}
+a{color:var(--chalk);text-decoration-color:var(--dust);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--chalk)}
+:focus-visible{outline:2px solid var(--medium);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.read{max-width:66ch}
+header.top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;align-items:baseline;padding:22px 0 0;color:var(--dust);font-size:.92rem}
+header.top a{color:var(--dust)}
+h1,h2,h3{font-stretch:125%;font-weight:800;line-height:1.02;letter-spacing:-.01em;margin:0}
+h1{font-size:clamp(2.4rem,6.2vw,4.6rem);margin:56px 0 18px;max-width:13em}
+h2{font-size:clamp(1.6rem,3.4vw,2.4rem);margin:0 0 14px}
+h3{font-size:1.15rem;margin:0 0 6px}
+.lede{font-size:1.2rem;color:var(--dust);margin:0 0 36px;max-width:40em}
+p{margin:0 0 1em}
+section{padding:96px 0 0}
+.muted{color:var(--dust)}
+.num{font-variant-numeric:tabular-nums;font-stretch:112%;font-weight:700}
+
+/* explorer */
+.explorer{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}
+@media (max-width:860px){.explorer{grid-template-columns:1fr}}
+.tracks{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 18px}
+.tracks button{font:600 .88rem var(--wide);font-stretch:110%;color:var(--dust);background:transparent;border:1px solid var(--line);
+border-radius:999px;padding:5px 12px;cursor:pointer}
+.tracks button[aria-pressed=true]{color:var(--asphalt);background:var(--chalk);border-color:var(--chalk)}
+.tracks button:hover{color:var(--chalk);border-color:var(--dust)}
+.tracks button[aria-pressed=true]:hover{color:var(--asphalt)}
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--dust);font:500 13px var(--wide)}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin:10px 0 0;font-size:.9rem;color:var(--dust)}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid var(--dust);vertical-align:middle;margin-right:6px}
+.legend i.dash{border-top-style:dashed}
+.side h3{font-size:1.5rem}
+.side .pirelli{display:flex;gap:6px;margin:12px 0 18px}
+.tyre{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;
+border:7px solid;font:800 .85rem var(--wide);font-stretch:112%;background:#16191c;color:var(--chalk)}
+.plans{margin:6px 0 0}
+.plan{margin:0 0 14px}
+.plan .who{display:flex;justify-content:space-between;font-size:.9rem;color:var(--dust);margin:0 0 4px}
+.bar{display:flex;height:18px;border-radius:3px;overflow:hidden;background:var(--kerb)}
+.bar span{display:block;height:100%;border-right:2px solid var(--asphalt)}
+.bar span:last-child{border-right:0}
+.note{font-size:.92rem;color:var(--dust)}
+
+/* story charts */
+.bars{width:100%;max-width:760px;height:auto;display:block;margin:8px 0 6px}
+.bars text{fill:var(--chalk);font:500 14px var(--wide)}
+.bars .lab{fill:var(--dust)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:28px;margin:26px 0 0}
+.fact .big{font-size:2.6rem;line-height:1;font-stretch:125%;font-weight:800;margin:0 0 8px;font-variant-numeric:tabular-nums}
+.fact p{color:var(--dust);margin:0}
+table{border-collapse:collapse;width:100%;max-width:900px;font-size:.96rem}
+td,th{padding:12px 14px 12px 0;border-top:1px solid var(--line);vertical-align:top;text-align:left}
+th{font-weight:700;width:34%}
+td.kept{color:var(--chalk)}td{color:var(--dust)}
+.verdict{display:inline-block;font-weight:700;color:var(--chalk);margin-right:6px}
+footer{margin:110px 0 48px;padding-top:18px;border-top:1px solid var(--line);color:var(--dust);font-size:.92rem}
+@media (prefers-reduced-motion:no-preference){.chart path.curve{transition:d .5s ease}}
+</style></head><body>
+<div class="wrap">
+<header class="top"><span><a href="https://hughod.com/">Hugh O'Donnell</a></span><span><a href="https://github.com/HughFOD/f1-tyre-degradation">Code and full write-up on GitHub</a></span></header>
+
+<h1>How fast do Formula 1 tyres wear out?</h1>
+<p class="lede">Every lap a car gets lighter as fuel burns and slower as its tyres wear. I separated the two for every Grand Prix
+since 2018, then tested whether wear can be forecast before a race and whether that leads to good pit strategy.
+Pick a track to see what happened in its latest race.</p>
+
+<div class="tracks" role="group" aria-label="Choose a track"></div>
+<div class="explorer">
+  <figure style="margin:0">
+    <svg id="curves" class="chart" viewBox="0 0 720 380" role="img"></svg>
+    <div class="legend"><span><i></i>What happened (fitted on the race)</span><span><i class="dash"></i>Forecast before the race</span>
+    <span><i style="border-color:var(--soft)"></i>Soft</span><span><i style="border-color:var(--medium)"></i>Medium</span><span><i style="border-color:var(--hard)"></i>Hard</span></div>
+    <figcaption class="note" style="margin-top:8px">Seconds slower than a new tyre, with fuel burn and each driver's pace taken out.
+    A compound with too few clean laps in the race has only its forecast drawn.</figcaption>
+  </figure>
+  <aside id="side" class="side" aria-live="polite"></aside>
+</div>
+
+<section id="method" class="read">
+<h2>Separating fuel from tyres</h2>
+<p>Within a stint, the fuel load falls and the tyres age together, lap after lap, so the two effects can't be told apart.
+A pit stop breaks the link: the tyres start again from new while the fuel keeps burning. Because drivers stop on different
+laps, every race has enough of those resets to separate them. The fuel effect comes out at about six hundredths of a second
+faster per lap, which is what the physics says it should be.</p>
+<p>Only laps that show real pace count: no safety cars, no pit laps, no lap 1, and no laps stuck within two seconds of the car
+in front. That last filter matters most. Without it the soft tyre looks slow, because softs are used at the start, when
+the field is still queued up. That leaves 165 races and 5,369 practice long runs to learn from.</p>
+</section>
+
+<section id="forecast">
+<div class="read">
+<h2>Can wear be forecast before the race?</h2>
+<p>For 1,635 stints from 2024 to November 2026, I forecast how much time each would lose using only earlier races and
+that weekend's practice, then compared with what happened. The error below is for a 20-lap stint.</p>
+</div>
+<svg class="bars" viewBox="0 0 760 270" role="img" aria-label="Forecast error per 20-lap stint by method"><text class="lab" x="0" y="30">Ignore tyre wear</text><rect x="300" y="14" width="356.0" height="24" fill="var(--line)" rx="2"/><text x="664.0" y="31" class="num">1.46 s</text><text class="lab" x="0" y="76">Assume a typical race</text><rect x="300" y="60" width="244.6" height="24" fill="var(--line)" rx="2"/><text x="552.6" y="77" class="num">1.00 s</text><text class="lab" x="0" y="122">This track's history</text><rect x="300" y="106" width="237.7" height="24" fill="var(--dust)" rx="2"/><text x="545.7" y="123" class="num">0.98 s</text><text class="lab" x="0" y="168">+ this weekend's practice</text><rect x="300" y="152" width="231.6" height="24" fill="var(--model)" rx="2"/><text x="539.6" y="169" class="num">0.95 s</text><text class="lab" x="0" y="214">Hindsight: fitted on the race itself</text><rect x="300" y="198" width="164.9" height="24" fill="#5b636b" rx="2"/><text x="472.9" y="215" class="num">0.68 s</text><line x1="445.8" x2="445.8" y1="4" y2="240" stroke="var(--soft)" stroke-dasharray="4 4"/><text x="451.8" y="262" fill="var(--soft)" style="fill:var(--soft)">0.60 s: even matched stints differ this much</text></svg>
+<div class="read">
+<p>Modelling wear at all is most of the gain. The red line is the part nobody can forecast: two stints from the same race,
+on the same compound and at the same tyre ages still differ by that much, from how hard each driver pushed and from traffic.
+Fitting on the race itself gets close to that line, so only about a third of the remaining error could ever be won back.</p>
+<p>Each forecast also comes with a range meant to hold 80% of the time. It held 74% of the time,
+and 68% on softs, so read them as roughly three-in-four ranges.</p>
+</div>
+</section>
+
+<section id="strategy">
+<div class="read">
+<h2>Why the pit plans fall short</h2>
+<p>For each of 61 dry races I took the fastest one or two-stop plan under the pre-race forecast and scored it on how
+the tyres really wore that day.</p>
+</div>
+<div class="facts">
+  <div class="fact"><div class="big">84%</div><p>of plans chose the same number of stops as the best plan in hindsight.</p></div>
+  <div class="fact"><div class="big">64%</div><p>matched the winner, about as often as the hindsight plan itself (66%).</p></div>
+  <div class="fact"><div class="big">75%</div><p>of plans start on softs. Only 15% of winners did.</p></div>
+</div>
+<div class="read" style="margin-top:28px">
+<p>The soft tyre is the weak spot. In clean-air lap times, new softs are barely quicker than hards, so the model sees little
+reason to avoid them. Teams know softs also grain, overheat and drop off a cliff, which costs track position rather than lap time.
+Whenever extra data nudged the plans toward what teams actually do, the lap-time model scored the result as slower.
+A model built on lap times alone can't settle that argument: the next step is to score plans on finishing position.</p>
+</div>
+</section>
+
+<section id="tried">
+<div class="read"><h2>What I tried, and what held up</h2>
+<p>Every idea was tuned on 2023 and then tested on 2024 to 2026, races it had never seen.</p></div>
+<table><tr><th scope="row">This weekend's practice long runs</th><td><span class="verdict">Kept.</span>Shifting the forecast by how Friday's race simulations went cut the error from 0.975 to 0.950 s, better in every season and on every compound.</td></tr><tr><th scope="row">One more season of history (2018)</th><td><span class="verdict">Kept.</span>Forecasts about the same; pit plans lost less time (median 9.5 to 7.8 s).</td></tr><tr><th scope="row">Pirelli's compound choices</th><td><span class="verdict">Didn't help.</span>Matching each tyre to the same rubber's history at that track was slightly worse, because Pirelli already picks compounds so that soft, medium and hard behave alike at every circuit.</td></tr><tr><th scope="row">Track temperature</th><td><span class="verdict">Didn't help.</span>At the same track, hotter races showed no more wear.</td></tr><tr><th scope="row">Team or driver tyre wear</th><td><span class="verdict">Didn't help.</span>A small gain on 2023 that vanished on 2024 to 2026.</td></tr><tr><th scope="row">Watching the first part of the race</th><td><span class="verdict">Worse.</span>Early laps on heavy fuel and a green track mislead about later stints.</td></tr><tr><th scope="row">Planning for safety cars and uncertain wear</th><td><span class="verdict">Didn't hold up.</span>Looked better on 2023, no better on 2024 to 2026.</td></tr><tr><th scope="row">Practice data in the pit plans</th><td><span class="verdict">Trade-off.</span>Plans pit when winners do, but the lap-time model calls them slower.</td></tr><tr><th scope="row">Capping stints at what teams have run</th><td><span class="verdict">Trade-off.</span>Plans look more like the winners', and slower to the model.</td></tr><tr><th scope="row">Weighting practice sessions differently</th><td><span class="verdict">No change.</span>About a thousandth of a second.</td></tr></table>
+</section>
+
+<footer><p>Lap timing for 2018 to 2026 comes from <a href="https://github.com/TracingInsights">TracingInsights</a>, which archives
+the official live-timing feed. Pirelli's compound choices are in the repository with a source for every race. This is an unofficial
+project, not associated with Formula 1 or Pirelli.</p>
+<p>The code, the data and the full write-up are <a href="https://github.com/HughFOD/f1-tyre-degradation">on GitHub</a>. More of my projects are at <a href="https://hughod.com/">hughod.com</a>.</p></footer>
+</div>
+<script>
+const DATA = [{"track": "Abu Dhabi", "race": "Abu Dhabi Grand Prix", "year": 2025, "laps": 58, "pit_loss": 22.8, "safety_car": false, "forecast": {"fuel": -0.05309, "offset_SOFT": -0.06036, "wear_SOFT": 0.03204, "curve_SOFT": 0.07648, "offset_MEDIUM": -0.12161, "wear_MEDIUM": 0.06659, "curve_MEDIUM": 0.01976, "offset_HARD": 0.0, "wear_HARD": 0.04051, "curve_HARD": 0.0176}, "actual": {"fuel": -0.0527, "offset_SOFT": -0.06036, "wear_SOFT": 0.03204, "curve_SOFT": 0.07648, "offset_MEDIUM": -0.12313, "wear_MEDIUM": 0.07885, "curve_MEDIUM": 0.03551, "offset_HARD": 0.0, "wear_HARD": 0.05916, "curve_HARD": -0.03393}, "clean_laps": {"SOFT": 0, "MEDIUM": 126, "HARD": 292}, "pirelli": {"SOFT": "C5", "MEDIUM": "C4", "HARD": "C3"}, "plans": {"model": "S27 > H31", "hindsight": "S28 > H30", "winner": "M23 > H35"}, "plan_cost": 0.1}, {"track": "Austin", "race": "United States Grand Prix", "year": 2026, "laps": 56, "pit_loss": 22.0, "safety_car": true, "forecast": {"fuel": -0.05723, "offset_SOFT": -0.04561, "wear_SOFT": 0.02658, "curve_SOFT": 0.06955, "offset_MEDIUM": -0.1405, "wear_MEDIUM": 0.04606, "curve_MEDIUM": 0.03241, "offset_HARD": 0.0, "wear_HARD": 0.0515, "curve_HARD": 0.02658}, "actual": {"fuel": -0.05763, "offset_SOFT": -0.03734, "wear_SOFT": 0.04424, "curve_SOFT": 0.04359, "offset_MEDIUM": -0.12936, "wear_MEDIUM": 0.06872, "curve_MEDIUM": 0.00392, "offset_HARD": 0.0, "wear_HARD": 0.03029, "curve_HARD": 0.06541}, "clean_laps": {"SOFT": 184, "MEDIUM": 88, "HARD": 295}, "pirelli": {"SOFT": "C4", "MEDIUM": "C3", "HARD": "C2"}, "plans": {"model": "S29 > M27", "hindsight": "S27 > H29", "winner": "M24 > H32"}, "plan_cost": 7.1}, {"track": "Australia", "race": "Australian Grand Prix", "year": 2026, "laps": 58, "pit_loss": 22.7, "safety_car": true, "forecast": {"fuel": -0.05988, "offset_SOFT": -0.06321, "wear_SOFT": 0.02686, "curve_SOFT": 0.07428, "offset_MEDIUM": -0.10633, "wear_MEDIUM": 0.04574, "curve_MEDIUM": 0.00484, "offset_HARD": 0.0, "wear_HARD": 0.02838, "curve_HARD": 0.02763}, "actual": {"fuel": -0.03549, "offset_SOFT": -0.06888, "wear_SOFT": 0.04647, "curve_SOFT": 0.08147, "offset_MEDIUM": -0.1091, "wear_MEDIUM": 0.04139, "curve_MEDIUM": -0.00116, "offset_HARD": 0.0, "wear_HARD": 0.05428, "curve_HARD": -0.02673}, "clean_laps": {"SOFT": 81, "MEDIUM": 90, "HARD": 349}, "pirelli": {"SOFT": "C5", "MEDIUM": "C4", "HARD": "C3"}, "plans": {"model": "S26 > H32", "hindsight": "M32 > H26", "winner": "M12 > H46"}, "plan_cost": 9.5}, {"track": "Austria", "race": "Austrian Grand Prix", "year": 2026, "laps": 71, "pit_loss": 22.0, "safety_car": true, "forecast": {"fuel": -0.03157, "offset_SOFT": -0.06034, "wear_SOFT": 0.01456, "curve_SOFT": 0.07894, "offset_MEDIUM": -0.11951, "wear_MEDIUM": 0.05052, "curve_MEDIUM": 0.00326, "offset_HARD": 0.0, "wear_HARD": 0.04101, "curve_HARD": 0.0184}, "actual": {"fuel": -0.03291, "offset_SOFT": -0.04562, "wear_SOFT": 0.05927, "curve_SOFT": 0.09824, "offset_MEDIUM": -0.13096, "wear_MEDIUM": 0.06933, "curve_MEDIUM": 0.01307, "offset_HARD": 0.0, "wear_HARD": 0.04532, "curve_HARD": 0.10303}, "clean_laps": {"SOFT": 78, "MEDIUM": 231, "HARD": 387}, "pirelli": {"SOFT": "C5", "MEDIUM": "C4", "HARD": "C3"}, "plans": {"model": "S26 > S26 > M19", "hindsight": "M24 > M24 > H23", "winner": "M19 > H24 > H28"}, "plan_cost": 8.9}, {"track": "Bahrain", "race": "Bahrain Grand Prix", "year": 2025, "laps": 57, "pit_loss": 23.8, "safety_car": true, "forecast": {"fuel": -0.06405, "offset_SOFT": -0.01338, "wear_SOFT": 0.08559, "curve_SOFT": 0.1083, "offset_MEDIUM": -0.14193, "wear_MEDIUM": 0.11255, "curve_MEDIUM": -0.01408, "offset_HARD": 0.0, "wear_HARD": 0.08766, "curve_HARD": 0.03692}, "actual": {"fuel": -0.0714, "offset_SOFT": -0.00261, "wear_SOFT": 0.06289, "curve_SOFT": 0.10832, "offset_MEDIUM": -0.14135, "wear_MEDIUM": 0.10501, "curve_MEDIUM": -0.0025, "offset_HARD": 0.0, "wear_HARD": 0.10906, "curve_HARD": 0.06037}, "clean_laps": {"SOFT": 30, "MEDIUM": 151, "HARD": 112}, "pirelli": {"SOFT": "C3", "MEDIUM": "C2", "HARD": "C1"}, "plans": {"model": "M18 > H19 > H20", "hindsight": "S20 > S20 > M17", "winner": "S14 > M18 > M25"}, "plan_cost": 16.1}, {"track": "Baku", "race": "Azerbaijan Grand Prix", "year": 2026, "laps": 51, "pit_loss": 25.8, "safety_car": true, "forecast": {"fuel": -0.06538, "offset_SOFT": -0.05528, "wear_SOFT": 0.06032, "curve_SOFT": 0.09303, "offset_MEDIUM": -0.13778, "wear_MEDIUM": 0.04452, "curve_MEDIUM": -0.00663, "offset_HARD": 0.0, "wear_HARD": 0.03326, "curve_HARD": -0.0161}, "actual": {"fuel": -0.06753, "offset_SOFT": -0.05368, "wear_SOFT": -0.00433, "curve_SOFT": 0.07255, "offset_MEDIUM": -0.13002, "wear_MEDIUM": 0.02873, "curve_MEDIUM": 0.00378, "offset_HARD": 0.0, "wear_HARD": 0.03991, "curve_HARD": 0.01268}, "clean_laps": {"SOFT": 127, "MEDIUM": 175, "HARD": 0}, "pirelli": {"SOFT": "C5", "MEDIUM": "C4", "HARD": "C3"}, "plans": {"model": "M22 > H29", "hindsight": "S30 > M21", "winner": "M31 > S5 > S15"}, "plan_cost": 15.7}, {"track": "Barcelona", "race": "Barcelona Grand Prix", "year": 2026, "laps": 66, "pit_loss": 25.0, "safety_car": true, "forecast": {"fuel": -0.05205, "offset_SOFT": -0.07069, "wear_SOFT": 0.04415, "curve_SOFT": 0.11755, "offset_MEDIUM": -0.10207, "wear_MEDIUM": 0.07322, "curve_MEDIUM": -0.01232, "offset_HARD": 0.0, "wear_HARD": 0.06226, "curve_HARD": -0.0057}, "actual": {"fuel": -0.05905, "offset_SOFT": -0.05973, "wear_SOFT": 0.10754, "curve_SOFT": 0.10897, "offset_MEDIUM": -0.1301, "wear_MEDIUM": 0.14302, "curve_MEDIUM": 0.03995, "offset_HARD": 0.0, "wear_HARD": 0.13687, "curve_HARD": -0.02145}, "clean_laps": {"SOFT": 36, "MEDIUM": 120, "HARD": 423}, "pirelli": {"SOFT": "C4", "MEDIUM": "C3", "HARD": "C2"}, "plans": {"model": "S21 > S21 > H24", "hindsight": "S22 > S22 > H22", "winner": "S11 > H16 > M14 > H25"}, "plan_cost": 0.5}, {"track": "Hungary", "race": "Hungarian Grand Prix", "year": 2026, "laps": 70, "pit_loss": 22.7, "safety_car": true, "forecast": {"fuel": -0.0459, "offset_SOFT": -0.08795, "wear_SOFT": 0.02538, "curve_SOFT": 0.16391, "offset_MEDIUM": -0.12331, "wear_MEDIUM": 0.06055, "curve_MEDIUM": -0.00567, "offset_HARD": 0.0, "wear_HARD": 0.04714, "curve_HARD": 0.0377}, "actual": {"fuel": -0.05027, "offset_SOFT": -0.05444, "wear_SOFT": 0.04368, "curve_SOFT": 0.07913, "offset_MEDIUM": -0.12691, "wear_MEDIUM": 0.08075, "curve_MEDIUM": -0.00037, "offset_HARD": 0.0, "wear_HARD": 0.07828, "curve_HARD": 0.01396}, "clean_laps": {"SOFT": 154, "MEDIUM": 162, "HARD": 411}, "pirelli": {"SOFT": "C5", "MEDIUM": "C4", "HARD": "C3"}, "plans": {"model": "S22 > S23 > M25", "hindsight": "S25 > S25 > M20", "winner": "M17 > H22 > H17 > S14"}, "plan_cost": 1.3}, {"track": "Imola", "race": "Emilia Romagna Grand Prix", "year": 2025, "laps": 63, "pit_loss": 28.8, "safety_car": true, "forecast": {"fuel": -0.07967, "offset_SOFT": -0.0, "wear_SOFT": 0.01407, "curve_SOFT": 0.09211, "offset_MEDIUM": -0.15246, "wear_MEDIUM": 0.02914, "curve_MEDIUM": 0.05967, "offset_HARD": 0.0, "wear_HARD": 0.04378, "curve_HARD": 0.00588}, "actual": {"fuel": -0.05917, "offset_SOFT": -0.0, "wear_SOFT": 0.01407, "curve_SOFT": 0.09211, "offset_MEDIUM": -0.14081, "wear_MEDIUM": 0.06593, "curve_MEDIUM": -0.01517, "offset_HARD": 0.0, "wear_HARD": 0.06061, "curve_HARD": 0.00795}, "clean_laps": {"SOFT": 0, "MEDIUM": 109, "HARD": 242}, "pirelli": {"SOFT": "C6", "MEDIUM": "C5", "HARD": "C4"}, "plans": {"model": "S31 > M32", "hindsight": "S35 > M28", "winner": "M29 > H17 > H17"}, "plan_cost": 0.9}, {"track": "Jeddah", "race": "Saudi Arabian Grand Prix", "year": 2025, "laps": 50, "pit_loss": 20.7, "safety_car": true, "forecast": {"fuel": -0.07593, "offset_SOFT": -0.0, "wear_SOFT": 0.01407, "curve_SOFT": 0.09211, "offset_MEDIUM": -0.14965, "wear_MEDIUM": 0.02759, "curve_MEDIUM": -0.00217, "offset_HARD": 0.0, "wear_HARD": 0.02405, "curve_HARD": 0.01133}, "actual": {"fuel": -0.05042, "offset_SOFT": -0.0, "wear_SOFT": 0.01407, "curve_SOFT": 0.09211, "offset_MEDIUM": -0.16043, "wear_MEDIUM": 0.05611, "curve_MEDIUM": -0.00778, "offset_HARD": 0.0, "wear_HARD": 0.02531, "curve_HARD": 0.02039}, "clean_laps": {"SOFT": 0, "MEDIUM": 101, "HARD": 314}, "pirelli": {"SOFT": "C5", "MEDIUM": "C4", "HARD": "C3"}, "plans": {"model": "M28 > H22", "hindsight": "S23 > H27", "winner": "M19 > H31"}, "plan_cost": 6.0}, {"track": "Las Vegas", "race": "Las Vegas Grand Prix", "year": 2026, "laps": 50, "pit_loss": 23.1, "safety_car": true, "forecast": {"fuel": -0.06899, "offset_SOFT": -0.05505, "wear_SOFT": 0.0185, "curve_SOFT": 0.07933, "offset_MEDIUM": -0.12303, "wear_MEDIUM": 0.03913, "curve_MEDIUM": -0.00213, "offset_HARD": 0.0, "wear_HARD": 0.03139, "curve_HARD": 0.02619}, "actual": {"fuel": -0.03482, "offset_SOFT": -0.05576, "wear_SOFT": -0.03905, "curve_SOFT": 0.07775, "offset_MEDIUM": -0.12468, "wear_MEDIUM": -0.02557, "curve_MEDIUM": 0.00328, "offset_HARD": 0.0, "wear_HARD": 0.03976, "curve_HARD": 0.01315}, "clean_laps": {"SOFT": 88, "MEDIUM": 82, "HARD": 0}, "pirelli": {"SOFT": "C5", "MEDIUM": "C4", "HARD": "C3"}, "plans": {"model": "S24 > M26", "hindsight": "S5 > M45", "winner": "S19 > M31"}, "plan_cost": 1.3}, {"track": "Madrid", "race": "Spanish Grand Prix", "year": 2026, "laps": 57, "pit_loss": 25.8, "safety_car": true, "forecast": {"fuel": -0.05512, "offset_SOFT": -0.054, "wear_SOFT": 0.02384, "curve_SOFT": 0.08572, "offset_MEDIUM": -0.12969, "wear_MEDIUM": 0.0467, "curve_MEDIUM": 0.00174, "offset_HARD": 0.0, "wear_HARD": 0.04006, "curve_HARD": 0.01222}, "actual": {"fuel": -0.05681, "offset_SOFT": -0.04543, "wear_SOFT": 0.04626, "curve_SOFT": 0.06822, "offset_MEDIUM": -0.1238, "wear_MEDIUM": 0.05443, "curve_MEDIUM": -0.01936, "offset_HARD": 0.0, "wear_HARD": -0.02306, "curve_HARD": 0.07113}, "clean_laps": {"SOFT": 49, "MEDIUM": 93, "HARD": 501}, "pirelli": {"SOFT": "C4", "MEDIUM": "C3", "HARD": "C2"}, "plans": {"model": "S28 > M29", "hindsight": "M11 > H46", "winner": "M14 > H43"}, "plan_cost": 36.1}, {"track": "Mexico City", "race": "Mexico City Grand Prix", "year": 2026, "laps": 71, "pit_loss": 23.4, "safety_car": true, "forecast": {"fuel": -0.04204, "offset_SOFT": -0.07655, "wear_SOFT": 0.01786, "curve_SOFT": 0.09413, "offset_MEDIUM": -0.13236, "wear_MEDIUM": 0.04828, "curve_MEDIUM": 0.00135, "offset_HARD": 0.0, "wear_HARD": 0.04688, "curve_HARD": -0.02236}, "actual": {"fuel": -0.02156, "offset_SOFT": -0.05832, "wear_SOFT": 0.01142, "curve_SOFT": 0.05949, "offset_MEDIUM": -0.12822, "wear_MEDIUM": 0.04795, "curve_MEDIUM": -0.00922, "offset_HARD": 0.0, "wear_HARD": 0.03976, "curve_HARD": 0.01315}, "clean_laps": {"SOFT": 294, "MEDIUM": 168, "HARD": 0}, "pirelli": {"SOFT": "C5", "MEDIUM": "C4", "HARD": "C3"}, "plans": {"model": "S32 > H39", "hindsight": "S39 > M32", "winner": "M27 > S18 > S26"}, "plan_cost": 5.7}, {"track": "Miami", "race": "Miami Grand Prix", "year": 2026, "laps": 57, "pit_loss": 19.4, "safety_car": true, "forecast": {"fuel": -0.06599, "offset_SOFT": -0.06036, "wear_SOFT": 0.03204, "curve_SOFT": 0.07648, "offset_MEDIUM": -0.11104, "wear_MEDIUM": 0.04869, "curve_MEDIUM": 0.00114, "offset_HARD": 0.0, "wear_HARD": 0.04052, "curve_HARD": 0.01288}, "actual": {"fuel": -0.02215, "offset_SOFT": -0.06113, "wear_SOFT": -0.00185, "curve_SOFT": 0.07092, "offset_MEDIUM": -0.11771, "wear_MEDIUM": 0.04628, "curve_MEDIUM": -0.00226, "offset_HARD": 0.0, "wear_HARD": 0.03939, "curve_HARD": -0.00032}, "clean_laps": {"SOFT": 35, "MEDIUM": 142, "HARD": 287}, "pirelli": {"SOFT": "C5", "MEDIUM": "C4", "HARD": "C3"}, "plans": {"model": "S27 > M30", "hindsight": "S37 > M20", "winner": "M26 > H31"}, "plan_cost": 4.1}, {"track": "Monaco", "race": "Monaco Grand Prix", "year": 2026, "laps": 78, "pit_loss": 22.5, "safety_car": true, "forecast": {"fuel": -0.04954, "offset_SOFT": -0.03641, "wear_SOFT": 0.01308, "curve_SOFT": 0.06064, "offset_MEDIUM": -0.0801, "wear_MEDIUM": 0.049, "curve_MEDIUM": -0.01938, "offset_HARD": 0.0, "wear_HARD": 0.03035, "curve_HARD": 0.00189}, "actual": {"fuel": -0.01813, "offset_SOFT": -0.05613, "wear_SOFT": -0.06076, "curve_SOFT": 0.17086, "offset_MEDIUM": -0.12025, "wear_MEDIUM": 0.01665, "curve_MEDIUM": 0.0452, "offset_HARD": 0.0, "wear_HARD": 0.00382, "curve_HARD": 0.08732}, "clean_laps": {"SOFT": 159, "MEDIUM": 376, "HARD": 197}, "pirelli": {"SOFT": "C5", "MEDIUM": "C4", "HARD": "C3"}, "plans": {"model": "S37 > H41", "hindsight": "S47 > M31", "winner": "M37 > H24 > S5 > S2 > S10"}, "plan_cost": 10.2}, {"track": "Montreal", "race": "Canadian Grand Prix", "year": 2026, "laps": 68, "pit_loss": 28.7, "safety_car": true, "forecast": {"fuel": -0.04067, "offset_SOFT": -0.06036, "wear_SOFT": 0.03204, "curve_SOFT": 0.07648, "offset_MEDIUM": -0.11657, "wear_MEDIUM": 0.03887, "curve_MEDIUM": 0.00398, "offset_HARD": 0.0, "wear_HARD": 0.02614, "curve_HARD": 0.0086}, "actual": {"fuel": -0.03044, "offset_SOFT": -0.06586, "wear_SOFT": -0.04835, "curve_SOFT": 0.08848, "offset_MEDIUM": -0.09391, "wear_MEDIUM": -0.0579, "curve_MEDIUM": 0.109, "offset_HARD": 0.0, "wear_HARD": -0.03171, "curve_HARD": 0.03115}, "clean_laps": {"SOFT": 219, "MEDIUM": 396, "HARD": 36}, "pirelli": {"SOFT": "C5", "MEDIUM": "C4", "HARD": "C3"}, "plans": {"model": "M30 > H38", "hindsight": "S15 > M53", "winner": "S31 > M37"}, "plan_cost": 3.1}, {"track": "Monza", "race": "Italian Grand Prix", "year": 2026, "laps": 53, "pit_loss": 32.1, "safety_car": true, "forecast": {"fuel": -0.05281, "offset_SOFT": -0.05442, "wear_SOFT": 0.02356, "curve_SOFT": 0.08083, "offset_MEDIUM": -0.12683, "wear_MEDIUM": 0.04876, "curve_MEDIUM": 0.00416, "offset_HARD": 0.0, "wear_HARD": 0.03518, "curve_HARD": 0.00823}, "actual": {"fuel": -0.02995, "offset_SOFT": -0.05245, "wear_SOFT": 0.02999, "curve_SOFT": 0.10402, "offset_MEDIUM": -0.13117, "wear_MEDIUM": 0.00361, "curve_MEDIUM": 0.02322, "offset_HARD": 0.0, "wear_HARD": 0.00964, "curve_HARD": 0.00128}, "clean_laps": {"SOFT": 32, "MEDIUM": 201, "HARD": 199}, "pirelli": {"SOFT": "C5", "MEDIUM": "C4", "HARD": "C3"}, "plans": {"model": "S25 > H28", "hindsight": "M31 > H22", "winner": "H3 > M25 > M25"}, "plan_cost": 15.6}, {"track": "Qatar", "race": "Qatar Grand Prix", "year": 2025, "laps": 57, "pit_loss": 25.8, "safety_car": true, "forecast": {"fuel": -0.06482, "offset_SOFT": -0.06036, "wear_SOFT": 0.03204, "curve_SOFT": 0.07648, "offset_MEDIUM": -0.10693, "wear_MEDIUM": 0.02297, "curve_MEDIUM": -0.0002, "offset_HARD": 0.0, "wear_HARD": 0.01026, "curve_HARD": 0.03952}, "actual": {"fuel": -0.06816, "offset_SOFT": -0.0567, "wear_SOFT": 0.04274, "curve_SOFT": 0.07075, "offset_MEDIUM": -0.10196, "wear_MEDIUM": 0.03712, "curve_MEDIUM": -0.01172, "offset_HARD": 0.0, "wear_HARD": 0.01296, "curve_HARD": 0.04446}, "clean_laps": {"SOFT": 28, "MEDIUM": 193, "HARD": 127}, "pirelli": {"SOFT": "C3", "MEDIUM": "C2", "HARD": "C1"}, "plans": {"model": "M30 > H27", "hindsight": "M27 > H30", "winner": "M7 > M25 > H25"}, "plan_cost": 0.4}, {"track": "Shanghai", "race": "Chinese Grand Prix", "year": 2026, "laps": 56, "pit_loss": 25.2, "safety_car": true, "forecast": {"fuel": -0.07006, "offset_SOFT": -0.06036, "wear_SOFT": 0.03204, "curve_SOFT": 0.07648, "offset_MEDIUM": -0.12034, "wear_MEDIUM": 0.05682, "curve_MEDIUM": 0.01288, "offset_HARD": 0.0, "wear_HARD": 0.0747, "curve_HARD": -0.01851}, "actual": {"fuel": -0.06299, "offset_SOFT": -0.06036, "wear_SOFT": 0.02815, "curve_SOFT": 0.076, "offset_MEDIUM": -0.12119, "wear_MEDIUM": 0.08978, "curve_MEDIUM": 0.01711, "offset_HARD": 0.0, "wear_HARD": 0.04043, "curve_HARD": -5e-05}, "clean_laps": {"SOFT": 6, "MEDIUM": 66, "HARD": 294}, "pirelli": {"SOFT": "C4", "MEDIUM": "C3", "HARD": "C2"}, "plans": {"model": "S29 > M27", "hindsight": "S26 > H30", "winner": "M10 > H46"}, "plan_cost": 17.0}, {"track": "Silverstone", "race": "British Grand Prix", "year": 2026, "laps": 52, "pit_loss": 19.6, "safety_car": true, "forecast": {"fuel": -0.05866, "offset_SOFT": -0.05625, "wear_SOFT": 0.07179, "curve_SOFT": 0.12731, "offset_MEDIUM": -0.12383, "wear_MEDIUM": 0.05165, "curve_MEDIUM": 0.02844, "offset_HARD": 0.0, "wear_HARD": 0.01613, "curve_HARD": 0.03753}, "actual": {"fuel": -0.06369, "offset_SOFT": -0.06788, "wear_SOFT": 0.03131, "curve_SOFT": 0.10058, "offset_MEDIUM": -0.11629, "wear_MEDIUM": 0.06185, "curve_MEDIUM": -0.03554, "offset_HARD": 0.0, "wear_HARD": 0.06595, "curve_HARD": -0.00506}, "clean_laps": {"SOFT": 14, "MEDIUM": 239, "HARD": 248}, "pirelli": {"SOFT": "C3", "MEDIUM": "C2", "HARD": "C1"}, "plans": {"model": "M19 > H33", "hindsight": "S24 > M28", "winner": "M25 > H23 > S4"}, "plan_cost": 13.2}, {"track": "Singapore", "race": "Singapore Grand Prix", "year": 2026, "laps": 62, "pit_loss": 24.1, "safety_car": true, "forecast": {"fuel": -0.05606, "offset_SOFT": -0.054, "wear_SOFT": 0.01628, "curve_SOFT": 0.08572, "offset_MEDIUM": -0.12731, "wear_MEDIUM": 0.03677, "curve_MEDIUM": 0.05433, "offset_HARD": 0.0, "wear_HARD": 0.04916, "curve_HARD": 0.03948}, "actual": {"fuel": -0.04005, "offset_SOFT": -0.06547, "wear_SOFT": 0.01713, "curve_SOFT": 0.14006, "offset_MEDIUM": -0.11782, "wear_MEDIUM": 0.07035, "curve_MEDIUM": 0.01078, "offset_HARD": 0.0, "wear_HARD": 0.03991, "curve_HARD": 0.01268}, "clean_laps": {"SOFT": 321, "MEDIUM": 271, "HARD": 0}, "pirelli": {"SOFT": "C5", "MEDIUM": "C4", "HARD": "C3"}, "plans": {"model": "S33 > M29", "hindsight": "S28 > H34", "winner": "S32 > M30"}, "plan_cost": 11.7}, {"track": "Spa", "race": "Belgian Grand Prix", "year": 2026, "laps": 44, "pit_loss": 22.8, "safety_car": true, "forecast": {"fuel": -0.08444, "offset_SOFT": -0.06061, "wear_SOFT": 0.06275, "curve_SOFT": 0.12144, "offset_MEDIUM": -0.11807, "wear_MEDIUM": 0.08122, "curve_MEDIUM": 0.00582, "offset_HARD": 0.0, "wear_HARD": 0.06751, "curve_HARD": 0.03525}, "actual": {"fuel": -0.04367, "offset_SOFT": -0.06601, "wear_SOFT": 0.02902, "curve_SOFT": 0.07406, "offset_MEDIUM": -0.11904, "wear_MEDIUM": 0.08332, "curve_MEDIUM": 0.00337, "offset_HARD": 0.0, "wear_HARD": 0.05263, "curve_HARD": -0.02044}, "clean_laps": {"SOFT": 38, "MEDIUM": 42, "HARD": 263}, "pirelli": {"SOFT": "C4", "MEDIUM": "C3", "HARD": "C2"}, "plans": {"model": "M22 > H22", "hindsight": "S23 > H21", "winner": "M18 > S26"}, "plan_cost": 10.0}, {"track": "Suzuka", "race": "Japanese Grand Prix", "year": 2026, "laps": 53, "pit_loss": 24.4, "safety_car": true, "forecast": {"fuel": -0.07272, "offset_SOFT": -0.06626, "wear_SOFT": 0.04012, "curve_SOFT": 0.08416, "offset_MEDIUM": -0.11348, "wear_MEDIUM": 0.07883, "curve_MEDIUM": 0.00047, "offset_HARD": 0.0, "wear_HARD": 0.06435, "curve_HARD": 0.01901}, "actual": {"fuel": -0.08034, "offset_SOFT": -0.06036, "wear_SOFT": 0.03204, "curve_SOFT": 0.07648, "offset_MEDIUM": -0.11735, "wear_MEDIUM": 0.06101, "curve_MEDIUM": 0.02237, "offset_HARD": 0.0, "wear_HARD": 0.06345, "curve_HARD": 0.01446}, "clean_laps": {"SOFT": 0, "MEDIUM": 166, "HARD": 176}, "pirelli": {"SOFT": "C3", "MEDIUM": "C2", "HARD": "C1"}, "plans": {"model": "S28 > H25", "hindsight": "S29 > M24", "winner": "M22 > H31"}, "plan_cost": 3.3}, {"track": "S\u00e3o Paulo", "race": "S\u00e3o Paulo Grand Prix", "year": 2025, "laps": 71, "pit_loss": 22.9, "safety_car": true, "forecast": {"fuel": -0.04299, "offset_SOFT": -0.05725, "wear_SOFT": 0.02402, "curve_SOFT": 0.07967, "offset_MEDIUM": -0.12356, "wear_MEDIUM": 0.05547, "curve_MEDIUM": 0.00785, "offset_HARD": 0.0, "wear_HARD": 0.05563, "curve_HARD": -0.02704}, "actual": {"fuel": -0.03182, "offset_SOFT": -0.05326, "wear_SOFT": 0.06757, "curve_SOFT": 0.06274, "offset_MEDIUM": -0.12978, "wear_MEDIUM": 0.06029, "curve_MEDIUM": -0.01058, "offset_HARD": 0.0, "wear_HARD": 0.06026, "curve_HARD": 0.02006}, "clean_laps": {"SOFT": 72, "MEDIUM": 417, "HARD": 11}, "pirelli": {"SOFT": "C4", "MEDIUM": "C3", "HARD": "C2"}, "plans": {"model": "S25 > S25 > M21", "hindsight": "M25 > H21 > M25", "winner": "M30 > S20 > M21"}, "plan_cost": 12.9}, {"track": "Zandvoort", "race": "Dutch Grand Prix", "year": 2026, "laps": 72, "pit_loss": 19.7, "safety_car": true, "forecast": {"fuel": -0.05014, "offset_SOFT": -0.05851, "wear_SOFT": 0.00404, "curve_SOFT": 0.10433, "offset_MEDIUM": -0.12396, "wear_MEDIUM": 0.05917, "curve_MEDIUM": 0.00337, "offset_HARD": 0.0, "wear_HARD": 0.04954, "curve_HARD": 0.00369}, "actual": {"fuel": -0.03901, "offset_SOFT": -0.03815, "wear_SOFT": 0.03359, "curve_SOFT": 0.06426, "offset_MEDIUM": -0.14549, "wear_MEDIUM": 0.05955, "curve_MEDIUM": 0.02243, "offset_HARD": 0.0, "wear_HARD": 0.05142, "curve_HARD": -0.02966}, "clean_laps": {"SOFT": 158, "MEDIUM": 103, "HARD": 356}, "pirelli": {"SOFT": "C4", "MEDIUM": "C3", "HARD": "C2"}, "plans": {"model": "S28 > S28 > M16", "hindsight": "S23 > S23 > H26", "winner": "M2 > S19 > H26 > H25"}, "plan_cost": 2.6}];
+const COL = {SOFT:'var(--soft)', MEDIUM:'var(--medium)', HARD:'var(--hard)'};
+const COMP = ['SOFT','MEDIUM','HARD'];
+const AGE = 40;
+
+function loss(p, c, a){ return p['wear_'+c]*a + p['curve_'+c]*a*a/100; }
+function curve(p, c){
+  // wear never goes down with age (same rule the pit-plan search uses)
+  let out=[], m=0;
+  for(let a=0;a<=AGE;a++){ m=Math.max(m, loss(p,c,a), 0); out.push([a,m]); }
+  return out;
+}
+function el(tag, attrs, parent){
+  const e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]); if(parent) parent.appendChild(e); return e;
+}
+function draw(t){
+  const svg=document.getElementById('curves'); svg.innerHTML='';
+  const W=Math.max(300, Math.round(svg.parentNode.clientWidth||720)), H=W<560?Math.round(W*0.78):380, L=46,R=12,T=14,B=44;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const series=[];
+  for(const c of COMP){
+    series.push({c, kind:'forecast', pts:curve(t.forecast,c)});
+    if(t.clean_laps[c]>=100) series.push({c, kind:'actual', pts:curve(t.actual,c)});
+  }
+  let ymax=Math.max(2, ...series.flatMap(s=>s.pts.map(p=>p[1])));
+  ymax=Math.min(Math.ceil(ymax), 8);
+  const x=a=>L+(W-L-R)*a/AGE, y=v=>T+(H-T-B)*(1-Math.min(v,ymax)/ymax);
+  for(let v=0; v<=ymax; v++){
+    el('line',{x1:L,x2:W-R,y1:y(v),y2:y(v),class:'grid'},svg);
+    el('text',{x:L-10,y:y(v)+4,'text-anchor':'end'},svg).textContent=v+' s';
+  }
+  for(let a=0;a<=AGE;a+=10) el('text',{x:x(a),y:H-B+22,'text-anchor':'middle'},svg).textContent=a;
+  el('text',{x:(L+W-R)/2,y:H-6,'text-anchor':'middle'},svg).textContent='Laps on the tyre';
+  for(const s of series){
+    const d=s.pts.map((p,i)=>(i?'L':'M')+x(p[0]).toFixed(1)+','+y(p[1]).toFixed(1)).join('');
+    el('path',{d, fill:'none', stroke:COL[s.c], 'stroke-width':s.kind==='actual'?3.2:2,
+      'stroke-dasharray':s.kind==='forecast'?'7 6':'', class:'curve', opacity:s.kind==='forecast'?0.85:1},svg);
+  }
+  svg.setAttribute('aria-label', `Time lost to tyre wear at ${t.track} ${t.year}: forecast and actual, by compound`);
+}
+function bar(plan, laps){
+  const wrap=document.createElement('div'); wrap.className='bar';
+  for(const part of plan.split(' > ')){
+    const c={S:'SOFT',M:'MEDIUM',H:'HARD'}[part[0]], n=+part.slice(1);
+    const s=document.createElement('span'); s.style.width=(100*n/laps)+'%'; s.style.background=COL[c];
+    s.title=`${c.toLowerCase()} for ${n} laps`; wrap.appendChild(s);
+  }
+  return wrap;
+}
+function words(plan){
+  const parts=plan.split(' > ').map(p=>({S:'soft',M:'medium',H:'hard'}[p[0]])+' '+p.slice(1));
+  const stops=parts.length-1;
+  return `${stops} stop${stops===1?'':'s'}: `+parts.join(', ');
+}
+function side(t){
+  const s=document.getElementById('side');
+  const tyres = t.pirelli ? COMP.map(c=>`<span class="tyre" style="border-color:${COL[c]}" title="${c.toLowerCase()} was ${t.pirelli[c]}">${t.pirelli[c]}</span>`).join('') : '';
+  s.innerHTML = `<h3>${t.track} ${t.year}</h3>
+    <p class="note">${t.laps} laps. A green-flag pit stop cost ${t.pit_loss.toFixed(0)} s${t.safety_car?'; there was a safety car or VSC':''}.</p>
+    ${t.pirelli?`<div class="pirelli" aria-label="Pirelli compounds">${tyres}</div>`:''}
+    <div class="plans"></div>
+    <p class="note">Scored on how the tyres actually wore that day, the model's plan was ${t.plan_cost.toFixed(1)} s slower than the best plan in hindsight.</p>`;
+  const box=s.querySelector('.plans');
+  for(const [k,label] of [['model','Model, before the race'],['hindsight','Best plan in hindsight'],['winner','What the winner did']]){
+    const d=document.createElement('div'); d.className='plan';
+    d.innerHTML=`<div class="who"><span>${label}</span><span>${words(t.plans[k])}</span></div>`;
+    d.appendChild(bar(t.plans[k], t.laps)); box.appendChild(d);
+  }
+}
+function pick(i){
+  current=i;
+  document.querySelectorAll('.tracks button').forEach((b,j)=>b.setAttribute('aria-pressed', i===j));
+  draw(DATA[i]); side(DATA[i]);
+}
+const nav=document.querySelector('.tracks');
+DATA.forEach((t,i)=>{ const b=document.createElement('button'); b.type='button'; b.textContent=t.track;
+  b.addEventListener('click',()=>pick(i)); nav.appendChild(b); });
+let current=Math.max(0, DATA.findIndex(t=>t.track==='Hungary'));
+pick(current);
+let rt; window.addEventListener('resize',()=>{clearTimeout(rt); rt=setTimeout(()=>draw(DATA[current]),150);});
+</script></body></html>
